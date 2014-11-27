@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Loggly HTTP Client.
+ * Loggly HTTP module.
  */
 
 require __DIR__ . '/vendor/autoload.php';
@@ -71,8 +72,6 @@ function loggly_http_admin($form, &$form_state) {
  *
  * These events can be searched in Loggly by "tag:http".
  *
- * @param $log_entry artray
- *          array watchdog param
  */
 function loggly_http_watchdog(array $log_entry) {
   if (variable_get('loggly_http_enabled') && $log_entry['severity'] < 4) {
@@ -95,9 +94,9 @@ function loggly_http_watchdog(array $log_entry) {
     $message = json_encode($message);
     $request = $api->createRequest('POST', $loggly_endpoint, array(
       'headers' => array(
-        'Accept' => 'text/plain', 
-        'Content-Type' => $type
-      ),
+        'Accept' => 'text/plain',
+        'Content-Type' => $type,
+        ),
       'body' => $message)
     );
     try {

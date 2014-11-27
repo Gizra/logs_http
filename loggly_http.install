@@ -1,8 +1,9 @@
 <?php
+
 /**
- * @file loggly_http.install
+ * @file
+ * Install, update and uninstall functions for the Loggly HTTP module.
  *
- * Loggly HTTP Client install hooks.
  */
 
 /**
