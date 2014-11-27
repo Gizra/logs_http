@@ -89,13 +89,13 @@ function loggly_http_watchdog(array $log_entry) {
     $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_TOKEN . "/tag/http/";
     $type = 'application/x-www-form-urlencoded';
     $message = json_encode($message);
+    $response = '';
     $request = $api->createRequest('POST', $loggly_endpoint, array(
       'headers' => array(
         'Accept' => 'text/plain', 
         'Content-Type' => $type
       ),
-      'body' => $message,
-      ),
+      'body' => $message)
     );
     try {
       $response = $api->send($request);
