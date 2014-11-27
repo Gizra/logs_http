@@ -95,12 +95,12 @@ function loggly_http_watchdog(array $log_entry) {
       'headers' => array(
         'Accept' => 'text/plain',
         'Content-Type' => $type,
-        ),
+      ),
     'body' => $message)
     );
     try {
       $api->send($request);
-    } 
+    }
     catch (RequestException $e) {
       if ($e->hasResponse()) {
         watchdog('loggly_http', $e->getResponse(), WATCHDOG_ERROR);
