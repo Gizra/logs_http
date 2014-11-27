@@ -1,7 +1,7 @@
 <?php
 /**
  * @file
- * Loggly HTTP Client
+ * Loggly HTTP Client.
  */
 
 require __DIR__ . '/vendor/autoload.php';
@@ -44,7 +44,7 @@ function loggly_http_permission() {
 }
 
 /**
- * Loggly HTTP POST API Configuration Form
+ * Loggly HTTP POST API Configuration Form.
  */
 function loggly_http_admin($form, &$form_state) {
   $form['loggly_http_token'] = array(
@@ -66,9 +66,10 @@ function loggly_http_admin($form, &$form_state) {
 
 /**
  * Implements hook_watchdog().
- * HTTP POST JSON Object as a single event to Loggly
- * These events can be searched in Loggly by "tag:http"
- * @param $log_entry array
+ * HTTP POST JSON Object as a single event to Loggly.
+ * These events can be searched in Loggly by "tag:http".
+ * @param $log_entry 
+ *          array watchdog param
  */
 function loggly_http_watchdog(array $log_entry) {
   if (variable_get('loggly_http_enabled') && $log_entry['severity'] < 4) {

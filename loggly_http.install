@@ -1,7 +1,7 @@
 <?php
 /**
  * @file loggly_http.install
- * Loggly HTTP Client install hooks
+ * Loggly HTTP Client install hooks.
  */
 
 /**
