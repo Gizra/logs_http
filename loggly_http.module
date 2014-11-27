@@ -1,0 +1,109 @@
+<?php
+/**
+ * @file
+ * Loggly HTTP Client
+ */
+
+require __DIR__ . '/vendor/autoload.php';
+
+use GuzzleHttp\Client,
+    GuzzleHttp\Exception\RequestException;
+
+define('LOGGLY_HTTP_LOG', 'http://logs-01.loggly.com/inputs/');
+define('LOGGLY_TOKEN', variable_get('loggly_http_token'));
+
+/**
+ * Implements hook_menu().
+ */
+function loggly_http_menu() {
+  $items = array();
+
+  $items['admin/config/services/loggly-http-client'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Loggly HTTP Client',
+    'description' => 'Administer Loggly Client settings.',
+    'access arguments' => array('administer loggly http client'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('loggly_http_admin'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function loggly_http_permission() {
+  $permissions = array();
+
+  $permissions['administer loggly http client'] = array(
+    'title' => t('Administer Loggly HTTP client'),
+  );
+
+  return $permissions;
+}
+
+/**
+ * Loggly HTTP POST API Configuration Form
+ */
+function loggly_http_admin($form, &$form_state) {
+  $form['loggly_http_token'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Loggly HTTP API Token'),
+    '#description' => t('TOKEN: your customer token from the source setup page'),
+    '#default_value' => variable_get('loggly_http_token', NULL),
+  );
+
+  $form['loggly_http_enabled'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Loggly HTTP API'),
+    '#description' => t('Enable Loggly HTTP POST'),
+    '#default_value' => variable_get('loggly_http_enabled'),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_watchdog().
+ * HTTP POST JSON Object as a single event to Loggly
+ * These events can be searched in Loggly by "tag:http"
+ * @param $log_entry array
+ */
+function loggly_http_watchdog(array $log_entry) {
+  if (variable_get('loggly_http_enabled') && $log_entry['severity'] < 4) {
+    global $base_url;
+    $message = array(
+      'base_url' => $base_url,
+      'error_uuid' => $log_entry['variables']['@uuid'],
+      'timestamp' => $log_entry['timestamp'],
+      'type' => $log_entry['type'],
+      'ip' => $log_entry['ip'],
+      'request_uri' => $log_entry['request_uri'],
+      'referer' => $log_entry['referer'],
+      'uid' => $log_entry['uid'],
+      'link' => strip_tags($log_entry['link']),
+      'message' => strip_tags(!isset($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables'])),
+    );
+    $api = new Client();
+    $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_TOKEN . "/tag/http/";
+    $type = 'application/x-www-form-urlencoded';
+    $message = json_encode($message);
+    $request = $api->createRequest('POST', $loggly_endpoint, array(
+      'headers' => array(
+        'Accept' => 'text/plain', 
+        'Content-Type' => $type
+      ),
+      'body' => $message,
+      ),
+    );
+    try {
+      $response = $api->send($request);
+    } 
+    catch (RequestException $e) {
+      if ($e->hasResponse()) {
+        watchdog('loggly_http', $e->getResponse(), WATCHDOG_ERROR);
+      }
+    }
+  }
+}
