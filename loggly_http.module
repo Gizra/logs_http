@@ -10,7 +10,7 @@ use GuzzleHttp\Client,
     GuzzleHttp\Exception\RequestException;
 
 define('LOGGLY_HTTP_LOG', 'http://logs-01.loggly.com/inputs/');
-define('LOGGLY_TOKEN', variable_get('loggly_http_token'));
+define('LOGGLY_HTTP_LOGGLY_TOKEN', variable_get('loggly_http_token'));
 
 /**
  * Implements hook_menu().
@@ -86,7 +86,7 @@ function loggly_http_watchdog(array $log_entry) {
       'message' => strip_tags(!isset($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables'])),
     );
     $api = new Client();
-    $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_TOKEN . "/tag/http/";
+    $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_HTTP_LOGGLY_TOKEN . "/tag/http/";
     $type = 'application/x-www-form-urlencoded';
     $message = json_encode($message);
     $request = $api->createRequest('POST', $loggly_endpoint, array(

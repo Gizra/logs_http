@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file loggly_http.install
+ * Loggly HTTP Client install hooks
+ */
+
+/**
  * Implements hook_requirements().
  */
 function loggly_http_requirements($phase) {
