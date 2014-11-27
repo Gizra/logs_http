@@ -66,9 +66,12 @@ function loggly_http_admin($form, &$form_state) {
 
 /**
  * Implements hook_watchdog().
+ *
  * HTTP POST JSON Object as a single event to Loggly.
+ *
  * These events can be searched in Loggly by "tag:http".
- * @param $log_entry 
+ *
+ * @param $log_entry artray
  *          array watchdog param
  */
 function loggly_http_watchdog(array $log_entry) {
