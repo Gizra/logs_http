@@ -90,7 +90,7 @@ function loggly_http_watchdog(array $log_entry) {
     $api = new Client();
     $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_HTTP_LOGGLY_TOKEN . "/tag/http/";
     $type = 'application/x-www-form-urlencoded';
-    $message = json_encode($message);
+    $message = drupal_json_encode($message);
     $request = $api->createRequest('POST', $loggly_endpoint, array(
       'headers' => array(
         'Accept' => 'text/plain',
