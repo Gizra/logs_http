@@ -39,6 +39,6 @@ function loggly_http_requirements($phase) {
  * Implements hook_uninstall().
  */
 function loggly_http_uninstall() {
-  // Delete the Loggly API Token
+  // Delete the Loggly API Token!
   variable_del('loggly_http_token');
 }
