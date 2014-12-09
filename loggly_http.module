@@ -98,10 +98,8 @@ function loggly_severity_levels() {
  * These events can be searched in Loggly by "tag:http".
  */
 function loggly_http_watchdog(array $log_entry) {
-  error_log('severity in watchdog hook  '  . print_r($log_entry,1));
   if (variable_get('loggly_http_enabled') && $log_entry['severity'] <= variable_get('loggly_severity_level')) {
     global $base_url;
-    error_log('severity high enough in watchdog hook  '  . print_r($base_url,1));
     $message = array(
       'base_url' => $base_url,
       'timestamp' => $log_entry['timestamp'],
