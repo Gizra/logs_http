@@ -59,7 +59,7 @@ function loggly_http_admin($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Watchdog Severity'),
     '#options' => loggly_http_severity_levels(),
-    '#default_value' => variable_get('loggly_severity_level', WATCHDOG_ERROR),
+    '#default_value' => variable_get('loggly_http_severity_level', WATCHDOG_ERROR),
     '#description' => t('The minimum severity level to be reached before an event is pushed to Loggly.'),
   );
 
@@ -76,8 +76,8 @@ function loggly_http_admin($form, &$form_state) {
 /**
  * Returns an array of watchdog severity levels.
  *
- * @return 
- *  Array of Watchdog severity levels.
+ * @return array
+ *   Array of Watchdog severity levels.
  */
 function loggly_http_severity_levels() {
   return array(
