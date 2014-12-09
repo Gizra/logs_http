@@ -55,6 +55,14 @@ function loggly_http_admin($form, &$form_state) {
     '#default_value' => variable_get('loggly_http_token', NULL),
   );
 
+  $form['loggly_severity_level'] = array(
+    '#type' => 'select',
+    '#title' => t('Watchdog Severity'),
+    '#options' => loggly_severity_levels(),
+    '#default_value' => WATCHDOG_ERROR,
+    '#description' => t('The minimum severity level to be reached before an event is pushed to Loggly.'),
+  );
+
   $form['loggly_http_enabled'] = array(
     '#type' => 'checkbox',
     '#title' => t('Loggly HTTP API'),
@@ -66,6 +74,23 @@ function loggly_http_admin($form, &$form_state) {
 }
 
 /**
+ * Returns an array of watchdog severity levels
+ * @return array
+ */
+function loggly_severity_levels() {
+  return array(
+    WATCHDOG_EMERGENCY => t('Emergency'),
+    WATCHDOG_ALERT => t('Alert'),
+    WATCHDOG_CRITICAL => t('Critical'),
+    WATCHDOG_ERROR => t('Error'),
+    WATCHDOG_WARNING => t('Warning'),
+    WATCHDOG_NOTICE => t('Notice'),
+    WATCHDOG_INFO => t('Info'),
+    WATCHDOG_DEBUG => t('Debug'),
+  );
+}
+
+/**
  * Implements hook_watchdog().
  *
  * HTTP POST JSON Object as a single event to Loggly.
@@ -73,11 +98,12 @@ function loggly_http_admin($form, &$form_state) {
  * These events can be searched in Loggly by "tag:http".
  */
 function loggly_http_watchdog(array $log_entry) {
-  if (variable_get('loggly_http_enabled') && $log_entry['severity'] < 4) {
+  error_log('severity in watchdog hook  '  . print_r($log_entry,1));
+  if (variable_get('loggly_http_enabled') && $log_entry['severity'] < variable_get('loggly_severity_level')) {
     global $base_url;
+    error_log('severity high enough in watchdog hook  '  . print_r($base_url,1));
     $message = array(
       'base_url' => $base_url,
-      'error_uuid' => $log_entry['variables']['@uuid'],
       'timestamp' => $log_entry['timestamp'],
       'type' => $log_entry['type'],
       'ip' => $log_entry['ip'],
