@@ -55,10 +55,10 @@ function loggly_http_admin($form, &$form_state) {
     '#default_value' => variable_get('loggly_http_token', NULL),
   );
 
-  $form['loggly_severity_level'] = array(
+  $form['loggly_http_severity_level'] = array(
     '#type' => 'select',
     '#title' => t('Watchdog Severity'),
-    '#options' => loggly_severity_levels(),
+    '#options' => loggly_http_severity_levels(),
     '#default_value' => variable_get('loggly_severity_level', WATCHDOG_ERROR),
     '#description' => t('The minimum severity level to be reached before an event is pushed to Loggly.'),
   );
@@ -74,10 +74,12 @@ function loggly_http_admin($form, &$form_state) {
 }
 
 /**
- * Returns an array of watchdog severity levels
- * @return array
+ * Returns an array of watchdog severity levels.
+ *
+ * @return 
+ *  Array of Watchdog severity levels.
  */
-function loggly_severity_levels() {
+function loggly_http_severity_levels() {
   return array(
     WATCHDOG_EMERGENCY => t('Emergency'),
     WATCHDOG_ALERT => t('Alert'),
@@ -98,7 +100,7 @@ function loggly_severity_levels() {
  * These events can be searched in Loggly by "tag:http".
  */
 function loggly_http_watchdog(array $log_entry) {
-  if (variable_get('loggly_http_enabled') && $log_entry['severity'] <= variable_get('loggly_severity_level')) {
+  if (variable_get('loggly_http_enabled') && $log_entry['severity'] <= variable_get('loggly_http_severity_level')) {
     global $base_url;
     $message = array(
       'base_url' => $base_url,
