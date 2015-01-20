@@ -39,10 +39,8 @@ function loggly_http_requirements($phase) {
  * Implements hook_uninstall().
  */
 function loggly_http_uninstall() {
-  // Delete the Loggly API Token variable!
-  variable_del('loggly_http_token');
-  // Delete the Loggly HTTP Enabled variable!
+  variable_del('loggly_http_url');
   variable_del('loggly_http_enabled');
-  // Delete the Loggly Severity Level variable!
   variable_del('loggly_severity_level');
+  variable_del('loggly_http_uuid');
 }

@@ -5,7 +5,24 @@
  * Loggly HTTP module.
  */
 
-define('LOGGLY_HTTP_LOG', 'http://logs-01.loggly.com/inputs/');
+/**
+ * Implements hook_menu().
+ */
+function loggly_http_menu() {
+  $items = array();
+
+  $items['admin/config/services/loggly-http-client'] = array(
+    'type' => MENU_NORMAL_ITEM,
+    'title' => 'Loggly HTTP Client',
+    'description' => 'Administer Loggly Client settings.',
+    'access arguments' => array('administer loggly http client'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('loggly_http_admin_settings'),
+    'file' => 'loggly_http.admin.inc',
+  );
+
+  return $items;
+}
 
 /**
  * Implements hook_boot().
@@ -14,6 +31,60 @@ define('LOGGLY_HTTP_LOG', 'http://logs-01.loggly.com/inputs/');
  */
 function loggly_http_boot() {
   drupal_register_shutdown_function('loggly_http_shutdown');
+  set_exception_handler('_loggly_http_exception_handler');
+}
+
+
+/**
+ * Provides custom PHP exception handling.
+ *
+ * Uncaught exceptions are those not enclosed in a try/catch block. They are
+ * always fatal: the execution of the script will stop as soon as the exception
+ * handler exits.
+ *
+ * @param $exception
+ *   The exception object that was thrown.
+ *
+ * @see _drupal_exception_handler()
+ */
+function _loggly_http_exception_handler($exception) {
+  require_once DRUPAL_ROOT . '/includes/errors.inc';
+
+  try {
+    // Log the message to the watchdog and return an error page to the user.
+    _drupal_log_error(_loggly_http_decode_exception($exception), TRUE);
+  }
+  catch (Exception $exception2) {
+    // Another uncaught exception was thrown while handling the first one.
+    // If we are displaying errors, then do so with no possibility of a further uncaught exception being thrown.
+    if (error_displayable()) {
+      print '<h1>Additional uncaught exception thrown while handling exception.</h1>';
+      print '<h2>Original</h2><p>' . _drupal_render_exception_safe($exception) . '</p>';
+      print '<h2>Additional</h2><p>' . _drupal_render_exception_safe($exception2) . '</p><hr />';
+    }
+  }
+}
+
+/**
+ * Decodes an exception and retrieves the correct caller.
+ *
+ * @param $exception
+ *   The exception object that was thrown.
+ *
+ * @return array
+ *   An error in the format expected by _drupal_log_error().
+ *
+ * @see _drupal_decode_exception()
+ */
+function _loggly_http_decode_exception($exception) {
+  $return = _drupal_decode_exception($exception);
+
+  // We have to serialize and encode the array here to prevent a notice in
+  // theme_dblog_message(). We will decode the string back in
+  // loggly_http_watchdog()
+  $return['exception_trace'] = drupal_base64_encode(serialize($exception->getTrace()));
+  return $return;
+
 }
 
 /**
@@ -28,14 +99,10 @@ function loggly_http_shutdown() {
 
   // Send events to loggly.
   foreach ($events as $event) {
-    $loggly_endpoint = LOGGLY_HTTP_LOG . variable_get('loggly_http_token') . '/tag/http/';
+    $loggly_endpoint = variable_get('loggly_http_url');
 
     $options = array(
       'method' => 'POST',
-      'headers' => array(
-        'Accept' => 'text/plain',
-        'Content-Type' => 'application/x-www-form-urlencoded',
-      ),
       'data' => drupal_json_encode($event),
     );
 
@@ -44,32 +111,33 @@ function loggly_http_shutdown() {
   }
 }
 
+/**
+ * Register an event in a static cache.
+ *
+ * To prevent multiple registration of the same error, we check that identical
+ * events are not captured twice, thus reducing the final HTTP requests needed.
+ *
+ * @param array $event
+ */
 function loggly_http_register_event(array $event = array()) {
   $events = &drupal_static('loggly_http_events', array());
-  $events[] = $event;
-}
 
-function loggly_http_get_registered_events() {
-  $events = &drupal_static('loggly_http_events', array());
-  return $events;
+  // Prevent identical events.
+  $event_key = $event;
+  unset($event_key['timestamp']);
+  $key = md5(serialize($event_key));
+  $events[$key] = $event;
 }
 
 /**
- * Implements hook_menu().
+ * Get the registered events from the static cache.
+ *
+ * @return array
+ *   Array of events.
  */
-function loggly_http_menu() {
-  $items = array();
-
-  $items['admin/config/services/loggly-http-client'] = array(
-    'type' => MENU_NORMAL_ITEM,
-    'title' => 'Loggly HTTP Client',
-    'description' => 'Administer Loggly Client settings.',
-    'access arguments' => array('administer loggly http client'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('loggly_http_admin'),
-  );
-
-  return $items;
+function loggly_http_get_registered_events() {
+  $events = &drupal_static('loggly_http_events', array());
+  return $events;
 }
 
 /**
@@ -86,66 +154,18 @@ function loggly_http_permission() {
 }
 
 /**
- * Loggly HTTP POST API Configuration Form.
- */
-function loggly_http_admin($form, &$form_state) {
-  $form['loggly_http_token'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Loggly HTTP API Token'),
-    '#description' => t('TOKEN: your customer token from the source setup page'),
-    '#default_value' => variable_get('loggly_http_token', NULL),
-  );
-
-  $form['loggly_http_severity_level'] = array(
-    '#type' => 'select',
-    '#title' => t('Watchdog Severity'),
-    '#options' => loggly_http_severity_levels(),
-    '#default_value' => variable_get('loggly_http_severity_level', WATCHDOG_ERROR),
-    '#description' => t('The minimum severity level to be reached before an event is pushed to Loggly.'),
-  );
-
-  $form['loggly_http_enabled'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Loggly HTTP API'),
-    '#description' => t('Enable Loggly HTTP POST'),
-    '#default_value' => variable_get('loggly_http_enabled'),
-  );
-
-  return system_settings_form($form);
-}
-
-/**
- * Returns an array of watchdog severity levels.
- *
- * @return array
- *   Array of Watchdog severity levels.
- */
-function loggly_http_severity_levels() {
-  return array(
-    WATCHDOG_EMERGENCY => t('Emergency'),
-    WATCHDOG_ALERT => t('Alert'),
-    WATCHDOG_CRITICAL => t('Critical'),
-    WATCHDOG_ERROR => t('Error'),
-    WATCHDOG_WARNING => t('Warning'),
-    WATCHDOG_NOTICE => t('Notice'),
-    WATCHDOG_INFO => t('Info'),
-    WATCHDOG_DEBUG => t('Debug'),
-  );
-}
-
-/**
  * Implements hook_watchdog().
  *
- * HTTP POST JSON Object as a single event to Loggly.
- *
- * These events can be searched in Loggly by "tag:http".
+ * Register watchdog events.
  */
 function loggly_http_watchdog(array $log_entry) {
-  if (!variable_get('loggly_http_enabled')) {
+  if (!variable_get('loggly_http_enabled', TRUE) || !variable_get('loggly_http_url')) {
     return;
   }
 
+
   if ($log_entry['severity'] > variable_get('loggly_http_severity_level')) {
+    // Severity level is above the ones we want to log.
     return;
   }
 
@@ -158,14 +178,46 @@ function loggly_http_watchdog(array $log_entry) {
     'uid' => $log_entry['uid'],
     'link' => strip_tags($log_entry['link']),
     'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
+    'severity' => $log_entry['severity'],
   );
 
-    if ($log_entry['severity'] >= WATCHDOG_CRITICAL) {
-      $event += array(
-        'debug_backtrace' => debug_backtrace(),
-      );
-    }
+  if (!empty($log_entry['variables']['exception_trace'])) {
+    // @todo: We avoid unserializing as it seems to causes Loggly to fail
+    // to index event as JSON.
+    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
+  }
 
+  if ($uuid = variable_get('loggly_http_uuid')) {
+    $event['uuid'] = $uuid;
+  }
+
+  // Remove empty values, to prevent errors in the indexing of the JSON.
+  $event = loggly_http_array_remove_empty($event);
 
   loggly_http_register_event($event);
 }
+
+/**
+ * Deep array filter.
+ *
+ * Remove empty values.
+ *
+ * @param $haystack
+ *   The variable to filter.
+ *
+ * @return mixed
+ */
+function loggly_http_array_remove_empty($haystack) {
+  foreach ($haystack as $key => $value) {
+    if (is_array($value)) {
+      $haystack[$key] = loggly_http_array_remove_empty($haystack[$key]);
+    }
+
+    if (empty($haystack[$key])) {
+      unset($haystack[$key]);
+    }
+  }
+
+  return $haystack;
+}
+
