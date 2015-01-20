@@ -1,5 +1,0 @@
-{
-    "require": {
-        "guzzlehttp/guzzle": "v5.0.3"
-    }
-}

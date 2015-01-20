@@ -5,13 +5,54 @@
  * Loggly HTTP module.
  */
 
-require __DIR__ . '/vendor/autoload.php';
-
-use GuzzleHttp\Client,
-    GuzzleHttp\Exception\RequestException;
-
 define('LOGGLY_HTTP_LOG', 'http://logs-01.loggly.com/inputs/');
-define('LOGGLY_HTTP_LOGGLY_TOKEN', variable_get('loggly_http_token'));
+
+/**
+ * Implements hook_boot().
+ *
+ * Runs even for cached pages.
+ */
+function loggly_http_boot() {
+  drupal_register_shutdown_function('loggly_http_shutdown');
+}
+
+/**
+ * Runs on shutdown to clean up and display developer information.
+ *
+ * devel_boot() registers this function as a shutdown function.
+ */
+function loggly_http_shutdown() {
+  if (!$events = loggly_http_get_registered_events()) {
+    return;
+  }
+
+  // Send events to loggly.
+  foreach ($events as $event) {
+    $loggly_endpoint = LOGGLY_HTTP_LOG . variable_get('loggly_http_token') . '/tag/http/';
+
+    $options = array(
+      'method' => 'POST',
+      'headers' => array(
+        'Accept' => 'text/plain',
+        'Content-Type' => 'application/x-www-form-urlencoded',
+      ),
+      'data' => drupal_json_encode($event),
+    );
+
+    // Send data to Loggly.
+    $response = drupal_http_request($loggly_endpoint, $options);
+  }
+}
+
+function loggly_http_register_event(array $event = array()) {
+  $events = &drupal_static('loggly_http_events', array());
+  $events[] = $event;
+}
+
+function loggly_http_get_registered_events() {
+  $events = &drupal_static('loggly_http_events', array());
+  return $events;
+}
 
 /**
  * Implements hook_menu().
@@ -100,37 +141,31 @@ function loggly_http_severity_levels() {
  * These events can be searched in Loggly by "tag:http".
  */
 function loggly_http_watchdog(array $log_entry) {
-  if (variable_get('loggly_http_enabled') && $log_entry['severity'] <= variable_get('loggly_http_severity_level')) {
-    global $base_url;
-    $message = array(
-      'base_url' => $base_url,
-      'timestamp' => $log_entry['timestamp'],
-      'type' => $log_entry['type'],
-      'ip' => $log_entry['ip'],
-      'request_uri' => $log_entry['request_uri'],
-      'referer' => $log_entry['referer'],
-      'uid' => $log_entry['uid'],
-      'link' => strip_tags($log_entry['link']),
-      'message' => strip_tags(!isset($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables'])),
-    );
-    $api = new Client();
-    $loggly_endpoint = LOGGLY_HTTP_LOG . LOGGLY_HTTP_LOGGLY_TOKEN . "/tag/http/";
-    $type = 'application/x-www-form-urlencoded';
-    $message = drupal_json_encode($message);
-    $request = $api->createRequest('POST', $loggly_endpoint, array(
-      'headers' => array(
-        'Accept' => 'text/plain',
-        'Content-Type' => $type,
-      ),
-    'body' => $message)
-    );
-    try {
-      $api->send($request);
-    }
-    catch (RequestException $e) {
-      if ($e->hasResponse()) {
-        watchdog('loggly_http', $e->getResponse(), WATCHDOG_ERROR);
-      }
-    }
+  if (!variable_get('loggly_http_enabled')) {
+    return;
   }
+
+  if ($log_entry['severity'] > variable_get('loggly_http_severity_level')) {
+    return;
+  }
+
+  $event = array(
+    'timestamp' => $log_entry['timestamp'],
+    'type' => $log_entry['type'],
+    'ip' => $log_entry['ip'],
+    'request_uri' => $log_entry['request_uri'],
+    'referer' => $log_entry['referer'],
+    'uid' => $log_entry['uid'],
+    'link' => strip_tags($log_entry['link']),
+    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables'])),
+  );
+
+    if ($log_entry['severity'] >= WATCHDOG_CRITICAL) {
+      $event += array(
+        'debug_backtrace' => debug_backtrace(),
+      );
+    }
+
+
+  loggly_http_register_event($event);
 }
