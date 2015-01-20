@@ -157,7 +157,7 @@ function loggly_http_watchdog(array $log_entry) {
     'referer' => $log_entry['referer'],
     'uid' => $log_entry['uid'],
     'link' => strip_tags($log_entry['link']),
-    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables'])),
+    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
   );
 
     if ($log_entry['severity'] >= WATCHDOG_CRITICAL) {
