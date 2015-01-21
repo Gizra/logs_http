@@ -97,17 +97,17 @@ function loggly_http_shutdown() {
     return;
   }
 
+  $url = loggly_http_get_http_url();
+
   // Send events to loggly.
   foreach ($events as $event) {
-    $loggly_endpoint = variable_get('loggly_http_url');
-
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($event),
     );
 
     // Send data to Loggly.
-    $response = drupal_http_request($loggly_endpoint, $options);
+    $response = drupal_http_request($url, $options);
   }
 }
 
@@ -117,15 +117,45 @@ function loggly_http_shutdown() {
  * To prevent multiple registration of the same error, we check that identical
  * events are not captured twice, thus reducing the final HTTP requests needed.
  *
- * @param array $event
+ * @param array $log_entry
+ *   The entry log as passed from hook_watchdog().
  */
-function loggly_http_register_event(array $event = array()) {
+function loggly_http_register_event(array $log_entry) {
+  if (!loggly_http_get_http_url()) {
+    return;
+  }
+
   $events = &drupal_static('loggly_http_events', array());
 
+  $event = array(
+    'timestamp' => $log_entry['timestamp'],
+    'type' => $log_entry['type'],
+    'ip' => $log_entry['ip'],
+    'request_uri' => $log_entry['request_uri'],
+    'referer' => $log_entry['referer'],
+    'uid' => $log_entry['uid'],
+    'link' => strip_tags($log_entry['link']),
+    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
+    'severity' => $log_entry['severity'],
+  );
+
+  if (!empty($log_entry['variables']['exception_trace'])) {
+    // @todo: We avoid unserializing as it seems to causes Loggly to fail
+    // to index event as JSON.
+    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
+  }
+
+  if ($uuid = variable_get('loggly_http_uuid')) {
+    $event['uuid'] = $uuid;
+  }
+
+  // Remove empty values, to prevent errors in the indexing of the JSON.
+  $event = loggly_http_array_remove_empty($event);
+
   // Prevent identical events.
-  $event_key = $event;
-  unset($event_key['timestamp']);
-  $key = md5(serialize($event_key));
+  $event_clone = $event;
+  unset($event_clone['timestamp']);
+  $key = md5(serialize($event_clone));
   $events[$key] = $event;
 }
 
@@ -159,42 +189,27 @@ function loggly_http_permission() {
  * Register watchdog events.
  */
 function loggly_http_watchdog(array $log_entry) {
-  if (!variable_get('loggly_http_enabled', TRUE) || !variable_get('loggly_http_url')) {
-    return;
-  }
-
-
   if ($log_entry['severity'] > variable_get('loggly_http_severity_level')) {
     // Severity level is above the ones we want to log.
     return;
   }
 
-  $event = array(
-    'timestamp' => $log_entry['timestamp'],
-    'type' => $log_entry['type'],
-    'ip' => $log_entry['ip'],
-    'request_uri' => $log_entry['request_uri'],
-    'referer' => $log_entry['referer'],
-    'uid' => $log_entry['uid'],
-    'link' => strip_tags($log_entry['link']),
-    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-    'severity' => $log_entry['severity'],
-  );
+  loggly_http_register_event($log_entry);
+}
 
-  if (!empty($log_entry['variables']['exception_trace'])) {
-    // @todo: We avoid unserializing as it seems to causes Loggly to fail
-    // to index event as JSON.
-    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
+/**
+ * Return the endpoint URL to POST data to.
+ *
+ * @return string
+ *   Return the URL if exists, or NULL if disabled.
+ */
+function loggly_http_get_http_url() {
+  if (!variable_get('loggly_http_enabled', TRUE) || !variable_get('loggly_http_url')) {
+    // Don't register the event.
+    return;
   }
 
-  if ($uuid = variable_get('loggly_http_uuid')) {
-    $event['uuid'] = $uuid;
-  }
-
-  // Remove empty values, to prevent errors in the indexing of the JSON.
-  $event = loggly_http_array_remove_empty($event);
-
-  loggly_http_register_event($event);
+  return variable_get('loggly_http_url');
 }
 
 /**
