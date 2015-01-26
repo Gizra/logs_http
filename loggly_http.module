@@ -189,7 +189,7 @@ function loggly_http_permission() {
  * Register watchdog events.
  */
 function loggly_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > variable_get('loggly_http_severity_level')) {
+  if ($log_entry['severity'] > variable_get('loggly_http_severity_level', WATCHDOG_ERROR)) {
     // Severity level is above the ones we want to log.
     return;
   }
