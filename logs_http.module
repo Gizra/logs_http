@@ -2,23 +2,23 @@
 
 /**
  * @file
- * Loggly HTTP module.
+ * Logs HTTP module.
  */
 
 /**
  * Implements hook_menu().
  */
-function loggly_http_menu() {
+function logs_http_menu() {
   $items = array();
 
-  $items['admin/config/services/loggly-http-client'] = array(
+  $items['admin/config/services/logs-http-client'] = array(
     'type' => MENU_NORMAL_ITEM,
-    'title' => 'Loggly HTTP Client',
-    'description' => 'Administer Loggly Client settings.',
-    'access arguments' => array('administer loggly http client'),
+    'title' => 'Logs HTTP Client',
+    'description' => 'Administer Logs Client settings.',
+    'access arguments' => array('administer logs http client'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('loggly_http_admin_settings'),
-    'file' => 'loggly_http.admin.inc',
+    'page arguments' => array('logs_http_admin_settings'),
+    'file' => 'logs_http.admin.inc',
   );
 
   return $items;
@@ -29,9 +29,9 @@ function loggly_http_menu() {
  *
  * Runs even for cached pages.
  */
-function loggly_http_boot() {
-  drupal_register_shutdown_function('loggly_http_shutdown');
-  set_exception_handler('_loggly_http_exception_handler');
+function logs_http_boot() {
+  drupal_register_shutdown_function('logs_http_shutdown');
+  set_exception_handler('_logs_http_exception_handler');
 }
 
 
@@ -47,12 +47,12 @@ function loggly_http_boot() {
  *
  * @see _drupal_exception_handler()
  */
-function _loggly_http_exception_handler($exception) {
+function _logs_http_exception_handler($exception) {
   require_once DRUPAL_ROOT . '/includes/errors.inc';
 
   try {
     // Log the message to the watchdog and return an error page to the user.
-    _drupal_log_error(_loggly_http_decode_exception($exception), TRUE);
+    _drupal_log_error(_logs_http_decode_exception($exception), TRUE);
   }
   catch (Exception $exception2) {
     // Another uncaught exception was thrown while handling the first one.
@@ -76,12 +76,12 @@ function _loggly_http_exception_handler($exception) {
  *
  * @see _drupal_decode_exception()
  */
-function _loggly_http_decode_exception($exception) {
+function _logs_http_decode_exception($exception) {
   $return = _drupal_decode_exception($exception);
 
   // We have to serialize and encode the array here to prevent a notice in
   // theme_dblog_message(). We will decode the string back in
-  // loggly_http_watchdog()
+  // logs_http_watchdog()
   $return['exception_trace'] = drupal_base64_encode(serialize($exception->getTrace()));
   return $return;
 
@@ -92,21 +92,21 @@ function _loggly_http_decode_exception($exception) {
  *
  * devel_boot() registers this function as a shutdown function.
  */
-function loggly_http_shutdown() {
-  if (!$events = loggly_http_get_registered_events()) {
+function logs_http_shutdown() {
+  if (!$events = logs_http_get_registered_events()) {
     return;
   }
 
-  $url = loggly_http_get_http_url();
+  $url = logs_http_get_http_url();
 
-  // Send events to loggly.
+  // Send events to logs.
   foreach ($events as $event) {
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($event),
     );
 
-    // Send data to Loggly.
+    // Send data to Logs.
     $response = drupal_http_request($url, $options);
   }
 }
@@ -120,12 +120,12 @@ function loggly_http_shutdown() {
  * @param array $log_entry
  *   The entry log as passed from hook_watchdog().
  */
-function loggly_http_register_event(array $log_entry) {
-  if (!loggly_http_get_http_url()) {
+function logs_http_register_event(array $log_entry) {
+  if (!logs_http_get_http_url()) {
     return;
   }
 
-  $events = &drupal_static('loggly_http_events', array());
+  $events = &drupal_static('logs_http_events', array());
 
   $event = array(
     'timestamp' => $log_entry['timestamp'],
@@ -140,17 +140,17 @@ function loggly_http_register_event(array $log_entry) {
   );
 
   if (!empty($log_entry['variables']['exception_trace'])) {
-    // @todo: We avoid unserializing as it seems to causes Loggly to fail
+    // @todo: We avoid unserializing as it seems to causes Logs to fail
     // to index event as JSON.
     $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
   }
 
-  if ($uuid = variable_get('loggly_http_uuid')) {
+  if ($uuid = variable_get('logs_http_uuid')) {
     $event['uuid'] = $uuid;
   }
 
   // Remove empty values, to prevent errors in the indexing of the JSON.
-  $event = loggly_http_array_remove_empty($event);
+  $event = logs_http_array_remove_empty($event);
 
   // Prevent identical events.
   $event_clone = $event;
@@ -165,19 +165,19 @@ function loggly_http_register_event(array $log_entry) {
  * @return array
  *   Array of events.
  */
-function loggly_http_get_registered_events() {
-  $events = &drupal_static('loggly_http_events', array());
+function logs_http_get_registered_events() {
+  $events = &drupal_static('logs_http_events', array());
   return $events;
 }
 
 /**
  * Implements hook_permission().
  */
-function loggly_http_permission() {
+function logs_http_permission() {
   $permissions = array();
 
-  $permissions['administer loggly http client'] = array(
-    'title' => t('Administer Loggly HTTP client'),
+  $permissions['administer logs http client'] = array(
+    'title' => t('Administer Logs HTTP client'),
   );
 
   return $permissions;
@@ -188,13 +188,13 @@ function loggly_http_permission() {
  *
  * Register watchdog events.
  */
-function loggly_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > variable_get('loggly_http_severity_level', WATCHDOG_ERROR)) {
+function logs_http_watchdog(array $log_entry) {
+  if ($log_entry['severity'] > variable_get('logs_http_severity_level', WATCHDOG_ERROR)) {
     // Severity level is above the ones we want to log.
     return;
   }
 
-  loggly_http_register_event($log_entry);
+  logs_http_register_event($log_entry);
 }
 
 /**
@@ -203,13 +203,13 @@ function loggly_http_watchdog(array $log_entry) {
  * @return string
  *   Return the URL if exists, or NULL if disabled.
  */
-function loggly_http_get_http_url() {
-  if (!variable_get('loggly_http_enabled', TRUE) || !variable_get('loggly_http_url')) {
+function logs_http_get_http_url() {
+  if (!variable_get('logs_http_enabled', TRUE) || !variable_get('logs_http_url')) {
     // Don't register the event.
     return;
   }
 
-  return variable_get('loggly_http_url');
+  return variable_get('logs_http_url');
 }
 
 /**
@@ -222,10 +222,10 @@ function loggly_http_get_http_url() {
  *
  * @return mixed
  */
-function loggly_http_array_remove_empty($haystack) {
+function logs_http_array_remove_empty($haystack) {
   foreach ($haystack as $key => $value) {
     if (is_array($value)) {
-      $haystack[$key] = loggly_http_array_remove_empty($haystack[$key]);
+      $haystack[$key] = logs_http_array_remove_empty($haystack[$key]);
     }
 
     if (empty($haystack[$key])) {

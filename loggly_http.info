@@ -1,3 +1,0 @@
-name = loggly_http
-description = "Client for the Loggly HTTP API"
-core = "7.x"

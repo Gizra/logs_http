@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the Logs HTTP module.
+ */
+
+/**
+ * Implements hook_requirements().
+ */
+function logs_http_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    $token = variable_get('logs_http_token');
+    if (empty($token)) {
+      $requirements['logs_http_token'] = array(
+        'title' => $t('Logs HTTP Client TOKEN'),
+        'value' => $t('Unconfigured'),
+        'description' => $t('Logs HTTP Client module requires a TOKEN to be <a href="!url">configured</a>.',
+          array('!url' => url('admin/config/services/logs-http-client'))),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+    if (!empty($token)) {
+      $requirements['logs_http_token'] = array(
+        'title' => $t('Logs HTTP Client Configuration'),
+        'value' => $t('OK'),
+        'severity' => REQUIREMENT_OK,
+      );
+    }
+  }
+
+  return $requirements;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function logs_http_uninstall() {
+  variable_del('logs_http_url');
+  variable_del('logs_http_enabled');
+  variable_del('logs_severity_level');
+  variable_del('logs_http_uuid');
+}
