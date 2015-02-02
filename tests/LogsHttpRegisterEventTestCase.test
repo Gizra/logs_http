@@ -32,15 +32,16 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
 
     // Set severity.
+    variable_set('logs_http_severity_level', WATCHDOG_NOTICE);
+
+    // Test single event.
     drupal_static_reset('logs_http_events');
-    variable_get('logs_http_severity_level', WATCHDOG_NOTICE);
     watchdog('logs_http', 'Notice 1');
     $events = logs_http_get_registered_events();
     $this->assertEqual(count($events), 1, 'Notice events registered.');
 
     // Test multiple events.
     drupal_static_reset('logs_http_events');
-    variable_get('logs_http_severity_level', WATCHDOG_NOTICE);
     // A duplcaited event
     watchdog('logs_http', 'Notice 1');
     watchdog('logs_http', 'Notice 1');
@@ -48,6 +49,7 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     watchdog('logs_http', 'Notice 2');
     $events = logs_http_get_registered_events();
     $this->assertEqual(count($events), 2, 'Multiple events registered');
-    debug($events);
+    $this->assertEqual($events[0]['message'], 'Notice 1', 'Correct first event registered.');
+    $this->assertEqual($events[1]['message'], 'Notice 2', 'Correct second event registered.');
   }
 }
