@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Gizra/logs_http.svg?branch=7.x-1.x)](https://travis-ci.org/Gizra/logs_http)
+
 # Logs HTTP
 
 Logs HTTP Provides JSON event pushing to Logs via the tag/http endpoint.
