@@ -49,7 +49,12 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     watchdog('logs_http', 'Notice 2');
     $events = logs_http_get_registered_events();
     $this->assertEqual(count($events), 2, 'Multiple events registered');
-    $this->assertEqual($events[0]['message'], 'Notice 1', 'Correct first event registered.');
-    $this->assertEqual($events[1]['message'], 'Notice 2', 'Correct second event registered.');
+
+    // Get the elements (as they are keyed by an md5 hash).
+    $event1 = array_shift($events);
+    $event2 = array_shift($events);
+
+    $this->assertEqual($event1['message'], 'Notice 1', 'Correct first event registered.');
+    $this->assertEqual($event2['message'], 'Notice 2', 'Correct second event registered.');
   }
 }
