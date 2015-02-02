@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Contains LogsHttpRegisterEventTestCase.
+ */
+
+class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Register event',
+      'description' => 'Test registration of an event.',
+      'group' => 'Logs HTTP',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('logs_http');
+
+    // Add a dummy URL.
+    variable_set('logs_http_url', 'http://example.com');
+  }
+
+  /**
+   * Test registration of an event.
+   */
+  function testRegisterEvent() {
+    // Test severity.
+    watchdog('logs_http', 'Notice 1');
+    $events = logs_http_get_registered_events();
+    $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
+
+    // Set severity.
+    drupal_static_reset('logs_http_events');
+    variable_get('logs_http_severity_level', WATCHDOG_NOTICE);
+    watchdog('logs_http', 'Notice 1');
+    $events = logs_http_get_registered_events();
+    $this->assertEqual(count($events), 1, 'Notice events registered.');
+
+    // Test multiple events.
+    drupal_static_reset('logs_http_events');
+    variable_get('logs_http_severity_level', WATCHDOG_NOTICE);
+    // A duplcaited event
+    watchdog('logs_http', 'Notice 1');
+    watchdog('logs_http', 'Notice 1');
+
+    watchdog('logs_http', 'Notice 2');
+    $events = logs_http_get_registered_events();
+    $this->assertEqual(count($events), 2, 'Multiple events registered');
+    debug($events);
+  }
+}
