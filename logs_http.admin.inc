@@ -16,6 +16,13 @@ function logs_http_admin_settings($form, &$form_state) {
     '#default_value' => variable_get('logs_http_enabled', TRUE),
   );
 
+  $form['logs_http_debugging_mode'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Debugging mode'),
+    '#description' => t('If selected, each log entry will contain a lot more details about the current http request.'),
+    '#default_value' => variable_get('logs_http_debugging_mode', FALSE),
+  );
+
   $form['logs_http_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Endpoint'),
