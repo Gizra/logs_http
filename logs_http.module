@@ -139,6 +139,12 @@ function logs_http_register_event(array $log_entry) {
     'severity' => $log_entry['severity'],
   );
 
+  if (!empty($log_entry['variables']['exception_trace'])) {
+    // @todo: We avoid unserializing as it seems to causes Logs to fail
+    // to index event as JSON.
+    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
+  }
+
   if ($uuid = variable_get('logs_http_uuid')) {
     $event['uuid'] = $uuid;
   }
@@ -146,12 +152,35 @@ function logs_http_register_event(array $log_entry) {
   // Remove empty values, to prevent errors in the indexing of the JSON.
   $event = logs_http_array_remove_empty($event);
 
+  // Avoid infinite loops when drupal_alter should ever issue new events.
+  static $alter_active;
+  if (empty($alter_active)) {
+    $alter_active = TRUE;
+    // Allow other modules to alter the event before being registered.
+    drupal_alter('logs_http_event', $event);
+    $alter_active = FALSE;
+  }
+
+  // Prevent identical events.
+  $event_clone = $event;
+  unset($event_clone['timestamp']);
+  $key = md5(serialize($event_clone));
+  $events[$key] = $event;
+}
+
+/**
+ * Implements hook_logs_http_event_alter().
+ */
+function logs_http_logs_http_event_alter(&$event) {
   if (variable_get('logs_http_debugging_mode', FALSE)) {
+    $events = &drupal_static('logs_http_events', array());
     if (!isset($events['debugging'])) {
       $debugging_event = $event;
-      unset($debugging_event['type']);
-      unset($debugging_event['message']);
-      unset($debugging_event['severity']);
+      foreach (array('type', 'message', 'severity', 'exception_trace') as $key) {
+        if (isset($debugging_event[$key])) {
+          unset($debugging_event[$key]);
+        }
+      }
       $debugging_event['debug_details'] = array(
         'GET' => $_GET,
         'POST' => $_POST,
@@ -160,18 +189,6 @@ function logs_http_register_event(array $log_entry) {
       $events['debugging'] = $debugging_event;
     }
   }
-
-  if (!empty($log_entry['variables']['exception_trace'])) {
-    // @todo: We avoid unserializing as it seems to causes Logs to fail
-    // to index event as JSON.
-    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
-  }
-
-  // Prevent identical events.
-  $event_clone = $event;
-  unset($event_clone['timestamp']);
-  $key = md5(serialize($event_clone));
-  $events[$key] = $event;
 }
 
 /**
