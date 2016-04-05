@@ -5,6 +5,8 @@
  * Contains LogsHttpRegisterEventTestCase.
  */
 
+use Drupal\Core\Logger\RfcLogLevel;
+
 class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
@@ -19,7 +21,7 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     parent::setUp('logs_http');
 
     // Add a dummy URL.
-    variable_set('logs_http_url', 'http://example.com');
+    \Drupal::state()->set('logs_http_url', 'http://example.com');
   }
 
   /**
@@ -32,7 +34,7 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
 
     // Set severity.
-    variable_set('logs_http_severity_level', WATCHDOG_NOTICE);
+    \Drupal::state()->set('logs_http_severity_level', RfcLogLevel::NOTICE);
 
     // Test single event.
     drupal_static_reset('logs_http_events');

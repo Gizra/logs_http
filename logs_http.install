@@ -9,8 +9,8 @@
  * Implements hook_uninstall().
  */
 function logs_http_uninstall() {
-  variable_del('logs_http_url');
-  variable_del('logs_http_enabled');
-  variable_del('logs_severity_level');
-  variable_del('logs_http_uuid');
+  \Drupal::state()->delete('logs_http_url');
+  \Drupal::state()->delete('logs_http_enabled');
+  \Drupal::state()->delete('logs_severity_level');
+  \Drupal::state()->delete('logs_http_uuid');
 }

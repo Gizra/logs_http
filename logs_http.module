@@ -5,24 +5,7 @@
  * Logs HTTP module.
  */
 
-/**
- * Implements hook_menu().
- */
-function logs_http_menu() {
-  $items = array();
-
-  $items['admin/config/services/logs-http-client'] = array(
-    'type' => MENU_NORMAL_ITEM,
-    'title' => 'Logs HTTP Client',
-    'description' => 'Administer Logs Client settings.',
-    'access arguments' => array('administer logs http client'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('logs_http_admin_settings'),
-    'file' => 'logs_http.admin.inc',
-  );
-
-  return $items;
-}
+use Drupal\Core\Logger\RfcLogLevel;
 
 /**
  * Implements hook_boot().
@@ -145,7 +128,7 @@ function logs_http_register_event(array $log_entry) {
     $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
   }
 
-  if ($uuid = variable_get('logs_http_uuid')) {
+  if ($uuid = \Drupal::state()->get('logs_http_uuid')) {
     $event['uuid'] = $uuid;
   }
 
@@ -189,7 +172,7 @@ function logs_http_permission() {
  * Register watchdog events.
  */
 function logs_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > variable_get('logs_http_severity_level', WATCHDOG_ERROR)) {
+  if ($log_entry['severity'] > \Drupal::state()->get('logs_http_severity_level', RfcLogLevel::ERROR)) {
     // Severity level is above the ones we want to log.
     return;
   }
@@ -204,12 +187,12 @@ function logs_http_watchdog(array $log_entry) {
  *   Return the URL if exists, or NULL if disabled.
  */
 function logs_http_get_http_url() {
-  if (!variable_get('logs_http_enabled', TRUE) || !variable_get('logs_http_url')) {
+  if (!\Drupal::state()->get('logs_http_enabled', TRUE) || !\Drupal::state()->get('logs_http_url')) {
     // Don't register the event.
     return;
   }
 
-  return variable_get('logs_http_url');
+  return \Drupal::state()->get('logs_http_url');
 }
 
 /**
