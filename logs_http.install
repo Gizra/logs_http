@@ -1,16 +1,31 @@
 <?php
 
+use Drupal\Core\Logger\RfcLogLevel;
+
 /**
  * @file
  * Install, update and uninstall functions for the Logs HTTP module.
  */
 
 /**
+ * Implements hook_install().
+ *
+ * Set all logs_http settings variables.
+ */
+function logs_http_install() {
+  $config = \Drupal::configFactory()->getEditable('logs_http.settings');
+  $config->set('enabled', TRUE);
+  $config->set('url', NULL);
+  $config->set('severity_level', RfcLogLevel::ERROR);
+  $config->set('uuid', NULL);
+  $config->save();
+}
+
+/**
  * Implements hook_uninstall().
+ *
+ * Delete all logs_http settings variables.
  */
 function logs_http_uninstall() {
-  \Drupal::config('logs_http')->delete('url');
-  \Drupal::config('logs_http')->delete('enabled');
-  \Drupal::config('logs_http')->delete('severity_level');
-  \Drupal::config('logs_http')->delete('uuid');
+  \Drupal::configFactory()->getEditable('logs_http.settings')->delete();
 }
