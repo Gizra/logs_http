@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\devel\Form\SettingsForm.
+ * Contains \Drupal\logs_http\Form\SettingsForm.
  */
 
 namespace Drupal\logs_http\Form;
@@ -28,8 +28,18 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
+    return ['logs_http.settings'];
+  }
+
+  /**
+   * Holds the name of the keys we holds in the variable.
+   */
+  public function defaultKeys() {
     return [
-      'logs_http.settings',
+      'enabled',
+      'url',
+      'severity_level',
+      'uuid',
     ];
   }
 
@@ -37,37 +47,52 @@ class SettingsForm extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, Request $request = NULL) {
-    $form['logs_http_enabled'] = array(
+    $config = $this->config('logs_http.settings');
+
+    $form['enabled'] = array(
       '#type' => 'checkbox',
       '#title' => t('Logs HTTP API'),
       '#description' => t('Enable Logs HTTP POST'),
-      '#default_value' => \Drupal::state()->get('logs_http_enabled', TRUE),
+      '#default_value' => $config->get('enabled', TRUE),
     );
 
-    $form['logs_http_url'] = array(
+    $form['url'] = array(
       '#type' => 'textfield',
       '#title' => t('Endpoint'),
       '#description' => t('The URL to POST the data to.'),
-      '#default_value' => \Drupal::state()->get('logs_http_url', NULL),
+      '#default_value' => $config->get('url', NULL),
     );
 
-    $options = RfcLogLevel::getLevels();
-
-    $form['logs_http_severity_level'] = array(
+    $form['severity_level'] = array(
       '#type' => 'select',
       '#title' => t('Watchdog Severity'),
-      '#options' => $options,
-      '#default_value' => \Drupal::state()->get('logs_http_severity_level', RfcLogLevel::ERROR),
+      '#options' => RfcLogLevel::getLevels(),
+      '#default_value' => $config->get('severity_level', RfcLogLevel::ERROR),
       '#description' => t('The minimum severity level to be reached before an event is pushed to Logs.'),
     );
 
-    $form['logs_http_uuid'] = array(
+    $form['uuid'] = array(
       '#type' => 'textfield',
       '#title' => t('Unique ID'),
       '#description' => t('An arbitrary ID that will identify the environment.'),
-      '#default_value' => \Drupal::state()->get('logs_http_uuid'),
+      '#default_value' => $config->get('uuid'),
     );
 
     return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $config = $this->config('logs_http.settings');
+
+    foreach ($this->defaultKeys() as $key) {
+      $config->set($key, $form_state->getValue($key));
+    }
+
+    $config->save();
+
+    parent::submitForm($form, $form_state);
   }
 }
