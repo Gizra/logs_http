@@ -154,19 +154,6 @@ function logs_http_get_registered_events() {
 }
 
 /**
- * Implements hook_permission().
- */
-function logs_http_permission() {
-  $permissions = array();
-
-  $permissions['administer logs http client'] = array(
-    'title' => t('Administer Logs HTTP client'),
-  );
-
-  return $permissions;
-}
-
-/**
  * Implements hook_watchdog().
  *
  * Register watchdog events.
