@@ -8,17 +8,6 @@
 use Drupal\Core\Logger\RfcLogLevel;
 
 /**
- * Implements hook_boot().
- *
- * Runs even for cached pages.
- */
-function logs_http_boot() {
-  drupal_register_shutdown_function('logs_http_shutdown');
-  set_exception_handler('_logs_http_exception_handler');
-}
-
-
-/**
  * Provides custom PHP exception handling.
  *
  * Uncaught exceptions are those not enclosed in a try/catch block. They are
