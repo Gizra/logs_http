@@ -5,6 +5,7 @@
  * Logs HTTP module.
  */
 
+use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Utility\Error;
 
@@ -55,7 +56,7 @@ function _logs_http_decode_exception($exception) {
   // We have to serialize and encode the array here to prevent a notice in
   // theme_dblog_message(). We will decode the string back in
   // logs_http_watchdog()
-  $return['exception_trace'] = drupal_base64_encode(serialize($exception->getTrace()));
+  $return['exception_trace'] = Crypt::hashBase64(serialize($exception->getTrace()));
   return $return;
 
 }
