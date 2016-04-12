@@ -120,7 +120,7 @@ function logs_http_register_event(array $log_entry) {
     $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
   }
 
-  if ($uuid = \Drupal::state()->get('logs_http_uuid')) {
+  if ($uuid = \Drupal::configFactory()->getEditable('logs_http.settings')->get('uuid')) {
     $event['uuid'] = $uuid;
   }
 
@@ -151,7 +151,7 @@ function logs_http_get_registered_events() {
  * Register watchdog events.
  */
 function logs_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > \Drupal::state()->get('logs_http_severity_level', RfcLogLevel::ERROR)) {
+  if ($log_entry['severity'] > \Drupal::configFactory()->getEditable('logs_http.settings')->get('severity_level')) {
     // Severity level is above the ones we want to log.
     return;
   }
@@ -166,12 +166,13 @@ function logs_http_watchdog(array $log_entry) {
  *   Return the URL if exists, or NULL if disabled.
  */
 function logs_http_get_http_url() {
-  if (!\Drupal::state()->get('logs_http_enabled', TRUE) || !\Drupal::state()->get('logs_http_url')) {
+  $config = \Drupal::configFactory()->getEditable('logs_http.settings');
+  if (!$config->get('enabled') || !$config->get('url')) {
     // Don't register the event.
-    return;
+    return NULL;
   }
 
-  return \Drupal::state()->get('logs_http_url');
+  return $config->get('url');
 }
 
 /**
