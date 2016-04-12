@@ -87,54 +87,6 @@ function logs_http_shutdown() {
 }
 
 /**
- * Register an event in a static cache.
- *
- * To prevent multiple registration of the same error, we check that identical
- * events are not captured twice, thus reducing the final HTTP requests needed.
- *
- * @param array $log_entry
- *   The entry log as passed from hook_watchdog().
- */
-function logs_http_register_event(array $log_entry) {
-  if (!logs_http_get_http_url()) {
-    return;
-  }
-
-  $events = &drupal_static('logs_http_events', array());
-
-  $event = array(
-    'timestamp' => $log_entry['timestamp'],
-    'type' => $log_entry['type'],
-    'ip' => $log_entry['ip'],
-    'request_uri' => $log_entry['request_uri'],
-    'referer' => $log_entry['referer'],
-    'uid' => $log_entry['uid'],
-    'link' => strip_tags($log_entry['link']),
-    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-    'severity' => $log_entry['severity'],
-  );
-
-  if (!empty($log_entry['variables']['exception_trace'])) {
-    // @todo: We avoid unserializing as it seems to causes Logs to fail
-    // to index event as JSON.
-    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
-  }
-
-  if ($uuid = \Drupal::configFactory()->getEditable('logs_http.settings')->get('uuid')) {
-    $event['uuid'] = $uuid;
-  }
-
-  // Remove empty values, to prevent errors in the indexing of the JSON.
-  $event = logs_http_array_remove_empty($event);
-
-  // Prevent identical events.
-  $event_clone = $event;
-  unset($event_clone['timestamp']);
-  $key = md5(serialize($event_clone));
-  $events[$key] = $event;
-}
-
-/**
  * Get the registered events from the static cache.
  *
  * @return array
@@ -143,20 +95,6 @@ function logs_http_register_event(array $log_entry) {
 function logs_http_get_registered_events() {
   $events = &drupal_static('logs_http_events', array());
   return $events;
-}
-
-/**
- * Implements hook_watchdog().
- *
- * Register watchdog events.
- */
-function logs_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > \Drupal::configFactory()->getEditable('logs_http.settings')->get('severity_level')) {
-    // Severity level is above the ones we want to log.
-    return;
-  }
-
-  logs_http_register_event($log_entry);
 }
 
 /**

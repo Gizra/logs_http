@@ -13,7 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 
 /**
- * Defines a form that configures devel settings.
+ * Defines a form that configures logs_http settings.
  */
 class SettingsForm extends ConfigFormBase {
 

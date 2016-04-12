@@ -3,3 +3,7 @@ services:
     class: Drupal\logs_http\EventSubscriber\LogsHttpEventSubscriber
     tags:
       - { name: event_subscriber }
+  logs_http.logs_http_logger:
+    class: Drupal\logs_http\Logger\LogsHttpLogger
+    tags:
+      - { name: logger }

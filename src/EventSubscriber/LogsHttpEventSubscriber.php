@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains \Drupal\devel\EventSubscriber\DevelEventSubscriber.
+ * Contains \Drupal\logs_http\EventSubscriber\LogsHttpEventSubscriber.
  */
 
 namespace Drupal\logs_http\EventSubscriber;
