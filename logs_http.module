@@ -5,6 +5,7 @@
  * Logs HTTP module.
  */
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Utility\Error;
@@ -57,8 +58,8 @@ function _logs_http_decode_exception($exception) {
   // theme_dblog_message(). We will decode the string back in
   // logs_http_watchdog()
   $return['exception_trace'] = Crypt::hashBase64(serialize($exception->getTrace()));
-  return $return;
 
+  return $return;
 }
 
 /**
@@ -77,7 +78,7 @@ function logs_http_shutdown() {
   foreach ($events as $event) {
     $options = array(
       'method' => 'POST',
-      'data' => drupal_json_encode($event),
+      'data' => Json::encode($event),
     );
 
     // Send data to Logs.
