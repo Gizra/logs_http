@@ -5,5 +5,6 @@ services:
       - { name: event_subscriber }
   logs_http.logs_http_logger:
     class: Drupal\logs_http\Logger\LogsHttpLogger
+    arguments: ['@config.factory', '@logger.log_message_parser']
     tags:
       - { name: logger }

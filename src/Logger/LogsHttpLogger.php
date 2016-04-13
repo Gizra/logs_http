@@ -7,6 +7,9 @@
 
 namespace Drupal\logs_http\Logger;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LogMessageParserInterface;
+use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Logger\RfcLoggerTrait;
 use Psr\Log\LoggerInterface;
 
@@ -14,15 +17,48 @@ class LogsHttpLogger implements LoggerInterface {
   use RfcLoggerTrait;
 
   /**
+   * A configuration object containing logs_http settings.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
+  protected $config;
+
+  /**
+   * The message's placeholders parser.
+   *
+   * @var \Drupal\Core\Logger\LogMessageParserInterface
+   */
+  protected $parser;
+
+  /**
+   * The severity levels array.
+   */
+  protected $severity_levels;
+
+  /**
+   * Constructs a LogsHttpLogger object.
+   *
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory object.
+   * @param \Drupal\Core\Logger\LogMessageParserInterface $parser
+   *   The parser to use when extracting message variables.
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, LogMessageParserInterface $parser) {
+    $this->config = $config_factory->get('logs_http.settings');
+    $this->parser = $parser;
+    $this->severity_levels = RfcLogLevel::getLevels();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = array()) {
-    if ($level > \Drupal::configFactory()->getEditable('logs_http.settings')->get('severity_level')) {
+    if ($level > $this->config->get('severity_level')) {
       // Severity level is above the ones we want to log.
       return;
     }
 
-    $this->registerEvent($level, $context);
+    $this->registerEvent($level, $message, $context);
   }
 
   /**
@@ -33,26 +69,31 @@ class LogsHttpLogger implements LoggerInterface {
    *
    * @param $level
    *  The severity level.
+   * @param message
+   *  The message that contains the placeholders.
    * @param array $context
    *  The context as passed from the main Logger.
    */
-  protected function registerEvent($level, array $context = array()) {
+  protected function registerEvent($level, $message, array $context = array()) {
     if (!logs_http_get_http_url()) {
       return;
     }
 
-    $events = &drupal_static('logs_http_events', array());
+    // Populate the message placeholders and then replace them in the message.
+    $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
+    $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);
+
+//    $events = &drupal_static('logs_http_events', array());
 
     $event = array(
       'timestamp' => $context['timestamp'],
-      'type' => $context['%type'],
+      'type' => $this->severity_levels[$level]->getUntranslatedString(),
       'ip' => $context['ip'],
       'request_uri' => $context['request_uri'],
       'referer' => $context['referer'],
       'uid' => $context['uid'],
       'link' => strip_tags($context['link']),
-      // 'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-      'message' => $context['@message']['string'],
+      'message' => $message,
       'severity' => $level,
     );
 
@@ -62,7 +103,7 @@ class LogsHttpLogger implements LoggerInterface {
 //      $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
 //    }
 
-    if ($uuid = \Drupal::configFactory()->getEditable('logs_http.settings')->get('uuid')) {
+    if ($uuid = $this->config->get('uuid')) {
       $event['uuid'] = $uuid;
     }
 
