@@ -8,9 +8,9 @@
 namespace Drupal\logs_http\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
-use Symfony\Component\HttpFoundation\Request;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\RfcLogLevel;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Defines a form that configures logs_http settings.
@@ -53,21 +53,21 @@ class SettingsForm extends ConfigFormBase {
       '#type' => 'checkbox',
       '#title' => t('Logs HTTP API'),
       '#description' => t('Enable Logs HTTP POST'),
-      '#default_value' => $config->get('enabled', TRUE),
+      '#default_value' => $config->get('enabled'),
     );
 
     $form['url'] = array(
       '#type' => 'textfield',
       '#title' => t('Endpoint'),
       '#description' => t('The URL to POST the data to.'),
-      '#default_value' => $config->get('url', NULL),
+      '#default_value' => $config->get('url'),
     );
 
     $form['severity_level'] = array(
       '#type' => 'select',
       '#title' => t('Watchdog Severity'),
       '#options' => RfcLogLevel::getLevels(),
-      '#default_value' => $config->get('severity_level', RfcLogLevel::ERROR),
+      '#default_value' => $config->get('severity_level'),
       '#description' => t('The minimum severity level to be reached before an event is pushed to Logs.'),
     );
 

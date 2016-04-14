@@ -108,7 +108,7 @@ class LogsHttpLogger implements LoggerInterface {
     }
 
     // Remove empty values, to prevent errors in the indexing of the JSON.
-//    $event = logs_http_array_remove_empty($event);
+    $event = logs_http_array_remove_empty($event);
 
     // Prevent identical events.
     $event_clone = $event;
