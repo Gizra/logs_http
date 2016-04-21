@@ -83,7 +83,7 @@ class LogsHttpLogger implements LoggerInterface {
     $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
     $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);
 
-//    $events = &drupal_static('logs_http_events', array());
+    $events = &drupal_static('logs_http_events', array());
 
     $event = array(
       'timestamp' => $context['timestamp'],

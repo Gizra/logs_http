@@ -72,16 +72,19 @@ function logs_http_shutdown() {
   }
 
   $url = logs_http_get_http_url();
+  if (!$url) {
+    return;
+  }
 
   // Send events to logs.
   foreach ($events as $event) {
-    $options = array(
-      'method' => 'POST',
-      'data' => Json::encode($event),
-    );
+    $client = \Drupal::httpClient();
 
-    // Send data to Logs.
-    $response = drupal_http_request($url, $options);
+    try {
+      // Send data to Logs.
+      $response = $client->post($url, array('data' => Json::encode($event)));
+    }
+    catch (\GuzzleHttp\Exception\RequestException $e) {}
   }
 }
 
