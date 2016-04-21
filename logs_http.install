@@ -19,6 +19,10 @@ function logs_http_install() {
   $config->set('severity_level', RfcLogLevel::ERROR);
   $config->set('uuid', NULL);
   $config->save();
+
+  // Making sure "logs_http" will be the first to fire subscribed events so it
+  // can catch exceptions before any other extension module.
+  module_set_weight('logs_http', -10);
 }
 
 /**
