@@ -10,7 +10,11 @@ namespace Drupal\logs_http\Tests;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\simpletest\WebTestBase;
 
-
+/**
+ * Test registration of an event.
+ *
+ * @group logs_http
+ */
 class LogsHttpRegisterEventTestCase extends WebTestBase {
 
   private $logsHttpConfig;
@@ -21,14 +25,6 @@ class LogsHttpRegisterEventTestCase extends WebTestBase {
    * @var array
    */
   public static $modules = array('logs_http');
-
-  public static function getInfo() {
-    return array(
-      'name' => 'Register event',
-      'description' => 'Test registration of an event.',
-      'group' => 'Logs HTTP',
-    );
-  }
 
   public function __construct($test_id) {
     parent::__construct($test_id);
