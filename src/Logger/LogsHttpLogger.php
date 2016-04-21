@@ -97,11 +97,11 @@ class LogsHttpLogger implements LoggerInterface {
       'severity' => $level,
     );
 
-//    if (!empty($log_entry['variables']['exception_trace'])) {
-//      // @todo: We avoid unserializing as it seems to causes Logs to fail
-//      // to index event as JSON.
-//      $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
-//    }
+    if (!empty($context['exception_trace'])) {
+      // @todo: We avoid unserializing as it seems to causes Logs to fail
+      // to index event as JSON.
+      $event['exception_trace'] = base64_decode($context['exception_trace']);
+    }
 
     if ($uuid = $this->config->get('uuid')) {
       $event['uuid'] = $uuid;
