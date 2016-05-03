@@ -26,24 +26,14 @@ class LogsHttpRegisterEventTestCase extends WebTestBase {
    */
   public static $modules = array('logs_http');
 
-  public function __construct($test_id) {
-    parent::__construct($test_id);
-
-    // Getting the 'logs_http' configuration object.
-    $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
-  }
-
-  function setUp() {
-    parent::setUp();
-
-    // Add a dummy URL.
-    $this->logsHttpConfig->set('url', 'http://example.com');
-  }
-
   /**
    * Test registration of an event.
    */
   function testRegisterEvent() {
+    // Trying to set the configuration on the setup method keep fails.
+    $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
+    $this->logsHttpConfig->set('url', 'http://example.com');
+
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
     $events = logs_http_get_registered_events();
