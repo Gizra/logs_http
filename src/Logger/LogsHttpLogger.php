@@ -36,6 +36,18 @@ class LogsHttpLogger implements LoggerInterface {
   protected $severity_levels;
 
   /**
+   * Cache the events.
+   */
+  protected $cache_events;
+
+  /**
+   * Clear the events by setting a new array to the variable.
+   */
+  protected function clearCache() {
+    $this->cache_events = array();
+  }
+
+  /**
    * Constructs a LogsHttpLogger object.
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
@@ -47,6 +59,8 @@ class LogsHttpLogger implements LoggerInterface {
     $this->config = $config_factory->get('logs_http.settings');
     $this->parser = $parser;
     $this->severity_levels = RfcLogLevel::getLevels();
+
+    $this->clearCache();
   }
 
   /**
@@ -83,8 +97,6 @@ class LogsHttpLogger implements LoggerInterface {
     $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
     $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);
 
-    $events = &drupal_static('logs_http_events', array());
-
     $event = array(
       'timestamp' => $context['timestamp'],
       'type' => $this->severity_levels[$level]->getUntranslatedString(),
@@ -108,12 +120,36 @@ class LogsHttpLogger implements LoggerInterface {
     }
 
     // Remove empty values, to prevent errors in the indexing of the JSON.
-    $event = logs_http_array_remove_empty($event);
+    $event = $this->arrayRemoveEmpty($event);
 
     // Prevent identical events.
     $event_clone = $event;
     unset($event_clone['timestamp']);
     $key = md5(serialize($event_clone));
-    $events[$key] = $event;
+    $this->cache_events[$key] = $event;
+  }
+
+  /**
+   * Deep array filter.
+   *
+   * Remove empty values.
+   *
+   * @param $haystack
+   *   The variable to filter.
+   *
+   * @return mixed
+   */
+  private function arrayRemoveEmpty($haystack) {
+    foreach ($haystack as $key => $value) {
+      if (is_array($value)) {
+        $haystack[$key] = $this->arrayRemoveEmpty($haystack[$key]);
+      }
+
+      if (empty($haystack[$key])) {
+        unset($haystack[$key]);
+      }
+    }
+
+    return $haystack;
   }
 }

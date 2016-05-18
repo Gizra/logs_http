@@ -114,28 +114,3 @@ function logs_http_get_http_url() {
 
   return $config->get('url');
 }
-
-/**
- * Deep array filter.
- *
- * Remove empty values.
- *
- * @param $haystack
- *   The variable to filter.
- *
- * @return mixed
- */
-function logs_http_array_remove_empty($haystack) {
-  foreach ($haystack as $key => $value) {
-    if (is_array($value)) {
-      $haystack[$key] = logs_http_array_remove_empty($haystack[$key]);
-    }
-
-    if (empty($haystack[$key])) {
-      unset($haystack[$key]);
-    }
-  }
-
-  return $haystack;
-}
-
