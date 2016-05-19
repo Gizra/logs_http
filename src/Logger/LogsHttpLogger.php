@@ -21,7 +21,7 @@ class LogsHttpLogger implements LoggerInterface {
    *
    * @var \Drupal\Core\Config\Config
    */
-  protected $config;
+  protected static $config;
 
   /**
    * The message's placeholders parser.
@@ -32,19 +32,23 @@ class LogsHttpLogger implements LoggerInterface {
 
   /**
    * The severity levels array.
+   *
+   * @var array
    */
-  protected $severity_levels;
+  protected $severityLevels;
 
   /**
    * Cache the events.
+   *
+   * @var array
    */
-  protected $cache_events;
+  protected static $cache = [];
 
   /**
    * Clear the events by setting a new array to the variable.
    */
-  protected function clearCache() {
-    $this->cache_events = array();
+  public static function reset() {
+    static::$cache = [];
   }
 
   /**
@@ -56,18 +60,18 @@ class LogsHttpLogger implements LoggerInterface {
    *   The parser to use when extracting message variables.
    */
   public function __construct(ConfigFactoryInterface $config_factory, LogMessageParserInterface $parser) {
-    $this->config = $config_factory->get('logs_http.settings');
+    static::$config = $config_factory->get('logs_http.settings');
     $this->parser = $parser;
-    $this->severity_levels = RfcLogLevel::getLevels();
+    $this->severityLevels = RfcLogLevel::getLevels();
 
-    $this->clearCache();
+    $this->reset();
   }
 
   /**
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = array()) {
-    if ($level > $this->config->get('severity_level')) {
+    if ($level > static::$config->get('severity_level')) {
       // Severity level is above the ones we want to log.
       return;
     }
@@ -88,8 +92,8 @@ class LogsHttpLogger implements LoggerInterface {
    * @param array $context
    *  The context as passed from the main Logger.
    */
-  protected function registerEvent($level, $message, array $context = array()) {
-    if (!logs_http_get_http_url()) {
+  protected function registerEvent($level, $message, array $context = []) {
+    if (!$this->isEnabled()) {
       return;
     }
 
@@ -97,9 +101,9 @@ class LogsHttpLogger implements LoggerInterface {
     $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
     $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);
 
-    $event = array(
+    $event = [
       'timestamp' => $context['timestamp'],
-      'type' => $this->severity_levels[$level]->getUntranslatedString(),
+      'type' => $this->severityLevels[$level]->getUntranslatedString(),
       'ip' => $context['ip'],
       'request_uri' => $context['request_uri'],
       'referer' => $context['referer'],
@@ -107,7 +111,7 @@ class LogsHttpLogger implements LoggerInterface {
       'link' => strip_tags($context['link']),
       'message' => $message,
       'severity' => $level,
-    );
+    ];
 
     if (!empty($context['exception_trace'])) {
       // @todo: We avoid unserializing as it seems to causes Logs to fail
@@ -115,7 +119,7 @@ class LogsHttpLogger implements LoggerInterface {
       $event['exception_trace'] = base64_decode($context['exception_trace']);
     }
 
-    if ($uuid = $this->config->get('uuid')) {
+    if ($uuid = static::$config->get('uuid')) {
       $event['uuid'] = $uuid;
     }
 
@@ -126,7 +130,7 @@ class LogsHttpLogger implements LoggerInterface {
     $event_clone = $event;
     unset($event_clone['timestamp']);
     $key = md5(serialize($event_clone));
-    $this->cache_events[$key] = $event;
+    static::$cache[$key] = $event;
   }
 
   /**
@@ -151,5 +155,36 @@ class LogsHttpLogger implements LoggerInterface {
     }
 
     return $haystack;
+  }
+
+  /**
+   * A getter for the current events.
+   *
+   * @return array
+   *  Returns the current events.
+   */
+  public static function getEvents() {
+    return static::$cache;
+  }
+
+  /**
+   * Check if currently the configuration are set to send the errors and the url
+   * on the configuration is not empty.
+   *
+   * @return bool
+   *  Returns TRUE if currently we should POST the data, otherwise returns FALSE.
+   */
+  public static function isEnabled() {
+    return !!static::$config->get('enabled') && !empty(static::getUrl());
+  }
+
+  /**
+   * A getter for the url of the endpoint we should send the data to.
+   *
+   * @return array|mixed|null
+   *  Returns the endpoint URL to POST data to.
+   */
+  public static function getUrl() {
+    return static::$config->get('url');
   }
 }

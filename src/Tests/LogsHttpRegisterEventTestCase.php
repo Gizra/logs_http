@@ -8,6 +8,7 @@
 namespace Drupal\logs_http\Tests;
 
 use Drupal\Core\Logger\RfcLogLevel;
+use Drupal\logs_http\Logger\LogsHttpLogger;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -36,26 +37,26 @@ class LogsHttpRegisterEventTestCase extends WebTestBase {
 
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
-    $events = logs_http_get_registered_events();
+    $events = LogsHttpLogger::getEvents();
     $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
 
     // Set severity.
     $this->logsHttpConfig->set('severity_level', RfcLogLevel::NOTICE);
 
     // Test single event.
-    drupal_static_reset('logs_http_events');
+    LogsHttpLogger::reset();
     \Drupal::logger('logs_http')->notice('Notice 1');
-    $events = logs_http_get_registered_events();
+    $events = LogsHttpLogger::getEvents();
     $this->assertEqual(count($events), 1, 'Notice events registered.');
 
     // Test multiple events.
-    drupal_static_reset('logs_http_events');
+    LogsHttpLogger::reset();
     // A duplcaited event
     \Drupal::logger('logs_http')->notice('Notice 1');
     \Drupal::logger('logs_http')->notice('Notice 1');
 
     \Drupal::logger('logs_http')->notice('Notice 2');
-    $events = logs_http_get_registered_events();
+    $events = LogsHttpLogger::getEvents();
     $this->assertEqual(count($events), 2, 'Multiple events registered');
 
     // Get the elements (as they are keyed by an md5 hash).
