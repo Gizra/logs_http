@@ -5,27 +5,35 @@
  * Contains LogsHttpRegisterEventTestCase.
  */
 
-namespace Drupal\logs_http\Tests;
+namespace Drupal\Tests\logs_http\Kernel;
 
 use Drupal\Core\Logger\RfcLogLevel;
+use Drupal\KernelTests\KernelTestBase;
 use Drupal\logs_http\Logger\LogsHttpLogger;
-use Drupal\simpletest\WebTestBase;
 
 /**
  * Test registration of an event.
  *
  * @group logs_http
  */
-class LogsHttpRegisterEventTestCase extends WebTestBase {
+class LogsHttpRegisterEventTest extends KernelTestBase {
 
   private $logsHttpConfig;
 
   /**
-   * Modules to enable.
-   *
-   * @var array
+   * {@inheritdoc}
    */
-  public static $modules = array('logs_http');
+  public static $modules = ['logs_http'];
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function setUp() {
+    parent::setUp();
+
+    // Installing needed schema.
+    $this->installConfig(['logs_http']);
+  }
 
   /**
    * Test registration of an event.
@@ -34,6 +42,7 @@ class LogsHttpRegisterEventTestCase extends WebTestBase {
     // Trying to set the configuration on the setup method keep fails.
     $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
     $this->logsHttpConfig->set('url', 'http://example.com');
+    $this->logsHttpConfig->save();
 
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
