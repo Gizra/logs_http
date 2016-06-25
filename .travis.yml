@@ -7,13 +7,14 @@ php:
   - 7.0
 
 env:
-  - DRUPAL_CORE=8.1.x
-  - DRUPAL_CORE=8.2.x
   global:
     # Export database variable for kernel tests.
     - SIMPLETEST_DB=mysql://root:@127.0.0.1/logs_http
     # Export web server URL for browser tests.
     - SIMPLETEST_BASE_URL=http://localhost:8888
+  matrix:
+    - DRUPAL_CORE=8.1.x
+    - DRUPAL_CORE=8.2.x
 
 mysql:
   database: logs_http
