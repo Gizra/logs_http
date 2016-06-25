@@ -33,17 +33,19 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
 
     // Installing needed schema.
     $this->installConfig(['logs_http']);
+
+    // Setup the configuration.
+    $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
+    $this->logsHttpConfig->set('enabled', TRUE);
+    $this->logsHttpConfig->set('url', 'http://www.example.com');
+    $this->logsHttpConfig->set('severity_level', RfcLogLevel::ERROR);
+    $this->logsHttpConfig->save();
   }
 
   /**
    * Test registration of an event.
    */
   function testRegisterEvent() {
-    // Trying to set the configuration on the setup method keep fails.
-    $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
-    $this->logsHttpConfig->set('url', 'http://example.com');
-    $this->logsHttpConfig->save();
-
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
     $events = LogsHttpLogger::getEvents();
@@ -51,28 +53,30 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
 
     // Set severity.
     $this->logsHttpConfig->set('severity_level', RfcLogLevel::NOTICE);
+    $this->logsHttpConfig->save();
 
     // Test single event.
     LogsHttpLogger::reset();
-    \Drupal::logger('logs_http')->notice('Notice 1');
+    \Drupal::logger('logs_http')->error('Notice 1');
     $events = LogsHttpLogger::getEvents();
-    $this->assertEqual(count($events), 1, 'Notice events registered.');
+    $this->assertEquals(1, count($events), 'Notice events registered.');
 
     // Test multiple events.
     LogsHttpLogger::reset();
-    // A duplcaited event
+
+    // A duplicated event.
     \Drupal::logger('logs_http')->notice('Notice 1');
     \Drupal::logger('logs_http')->notice('Notice 1');
 
     \Drupal::logger('logs_http')->notice('Notice 2');
     $events = LogsHttpLogger::getEvents();
-    $this->assertEqual(count($events), 2, 'Multiple events registered');
+    $this->assertEquals(2, count($events), 'Multiple events registered');
 
     // Get the elements (as they are keyed by an md5 hash).
     $event1 = array_shift($events);
     $event2 = array_shift($events);
 
-    $this->assertEqual($event1['message'], 'Notice 1', 'Correct first event registered.');
-    $this->assertEqual($event2['message'], 'Notice 2', 'Correct second event registered.');
+    $this->assertEquals('Notice 1', $event1['message'], 'Correct first event registered.');
+    $this->assertEquals('Notice 2', $event2['message'], 'Correct second event registered.');
   }
 }
