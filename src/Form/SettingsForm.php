@@ -57,7 +57,7 @@ class SettingsForm extends ConfigFormBase {
     );
 
     $form['url'] = array(
-      '#type' => 'textfield',
+      '#type' => 'url',
       '#title' => $this->t('Endpoint'),
       '#description' => $this->t('The URL to POST the data to.'),
       '#default_value' => $config->get('url'),
