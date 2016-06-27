@@ -51,30 +51,30 @@ class SettingsForm extends ConfigFormBase {
 
     $form['enabled'] = array(
       '#type' => 'checkbox',
-      '#title' => t('Logs HTTP API'),
-      '#description' => t('Enable Logs HTTP POST'),
+      '#title' => $this->t('Logs HTTP API'),
+      '#description' => $this->t('Enable Logs HTTP POST'),
       '#default_value' => $config->get('enabled'),
     );
 
     $form['url'] = array(
       '#type' => 'textfield',
-      '#title' => t('Endpoint'),
-      '#description' => t('The URL to POST the data to.'),
+      '#title' => $this->t('Endpoint'),
+      '#description' => $this->t('The URL to POST the data to.'),
       '#default_value' => $config->get('url'),
     );
 
     $form['severity_level'] = array(
       '#type' => 'select',
-      '#title' => t('Watchdog Severity'),
+      '#title' => $this->t('Watchdog Severity'),
       '#options' => RfcLogLevel::getLevels(),
       '#default_value' => $config->get('severity_level'),
-      '#description' => t('The minimum severity level to be reached before an event is pushed to Logs.'),
+      '#description' => $this->t('The minimum severity level to be reached before an event is pushed to Logs.'),
     );
 
     $form['uuid'] = array(
       '#type' => 'textfield',
-      '#title' => t('Unique ID'),
-      '#description' => t('An arbitrary ID that will identify the environment.'),
+      '#title' => $this->t('Unique ID'),
+      '#description' => $this->t('An arbitrary ID that will identify the environment.'),
       '#default_value' => $config->get('uuid'),
     );
 
