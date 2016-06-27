@@ -154,7 +154,7 @@ class LogsHttpLogger implements LoggerInterface {
    *
    * @return mixed
    */
-  private function arrayRemoveEmpty($haystack) {
+  protected function arrayRemoveEmpty($haystack) {
     foreach ($haystack as $key => $value) {
       if (is_array($value)) {
         $haystack[$key] = $this->arrayRemoveEmpty($haystack[$key]);
