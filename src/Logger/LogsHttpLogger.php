@@ -125,8 +125,8 @@ class LogsHttpLogger implements LoggerInterface {
     ];
 
     if (!empty($context['exception_trace'])) {
-      // @todo: We avoid unserializing as it seems to causes Logs to fail
-      // to index event as JSON.
+      // We avoid unserializing as it seems to causes Logs to fail to index
+      // event as JSON.
       $event['exception_trace'] = base64_decode($context['exception_trace']);
     }
 
