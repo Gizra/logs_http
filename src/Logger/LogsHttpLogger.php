@@ -45,7 +45,6 @@ class LogsHttpLogger implements LoggerInterface {
   protected static $cache = [];
 
   /**
-   * WIP.
    * On a fatal error Drupal is not creating an instance of this class.
    */
   public static function validateConfig() {
