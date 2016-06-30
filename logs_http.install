@@ -14,10 +14,7 @@ use Drupal\Core\Logger\RfcLogLevel;
  */
 function logs_http_install() {
   $config = \Drupal::configFactory()->getEditable('logs_http.settings');
-  $config->set('enabled', TRUE);
-  $config->set('url', NULL);
   $config->set('severity_level', RfcLogLevel::ERROR);
-  $config->set('uuid', NULL);
   $config->save();
 
   // Making sure "logs_http" will be the first to fire subscribed events so it
