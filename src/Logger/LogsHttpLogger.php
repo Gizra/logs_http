@@ -17,7 +17,7 @@ class LogsHttpLogger implements LoggerInterface {
   use RfcLoggerTrait;
 
   /**
-   * A configuration object containing logs_http settings.
+   * A configuration object containing Logs http settings.
    *
    * @var \Drupal\Core\Config\Config
    */

@@ -10,7 +10,7 @@ use Drupal\Core\Logger\RfcLogLevel;
 /**
  * Implements hook_install().
  *
- * Set all logs_http settings variables.
+ * Set all Logs http settings variables.
  */
 function logs_http_install() {
   $config = \Drupal::configFactory()->getEditable('logs_http.settings');
@@ -25,7 +25,7 @@ function logs_http_install() {
 /**
  * Implements hook_uninstall().
  *
- * Delete all logs_http settings variables.
+ * Delete all Logs http settings variables.
  */
 function logs_http_uninstall() {
   \Drupal::configFactory()->getEditable('logs_http.settings')->delete();
