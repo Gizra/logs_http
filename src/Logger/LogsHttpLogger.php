@@ -73,8 +73,6 @@ class LogsHttpLogger implements LoggerInterface {
     static::$config = $config_factory->get('logs_http.settings');
     $this->parser = $parser;
     $this->severityLevels = RfcLogLevel::getLevels();
-
-    $this->reset();
   }
 
   /**
