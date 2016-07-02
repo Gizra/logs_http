@@ -28,7 +28,7 @@ class LogsHttpLogger implements LoggerInterface {
    *
    * @var \Drupal\Core\Logger\LogMessageParserInterface
    */
-  protected $parser;
+  protected $logMessageParser;
 
   /**
    * The severity levels array.
@@ -70,7 +70,7 @@ class LogsHttpLogger implements LoggerInterface {
    */
   public function __construct(ConfigFactoryInterface $config_factory, LogMessageParserInterface $parser) {
     static::$config = $config_factory->get('logs_http.settings');
-    $this->parser = $parser;
+    $this->logMessageParser = $parser;
     $this->severityLevels = RfcLogLevel::getLevels();
   }
 
@@ -106,7 +106,7 @@ class LogsHttpLogger implements LoggerInterface {
     }
 
     // Populate the message placeholders and then replace them in the message.
-    $message_placeholders = $this->parser->parseMessagePlaceholders($message, $context);
+    $message_placeholders = $this->logMessageParser->parseMessagePlaceholders($message, $context);
     $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);
 
     $event = [
