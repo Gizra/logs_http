@@ -38,7 +38,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     // Setup the configuration.
     $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
     $this->logsHttpConfig->set('enabled', TRUE);
-    $this->logsHttpConfig->set('url', 'http://localhost:3000');
+    $this->logsHttpConfig->set('url', 'http://www.example.com');
     $this->logsHttpConfig->set('severity_level', RfcLogLevel::ERROR);
     $this->logsHttpConfig->save();
 

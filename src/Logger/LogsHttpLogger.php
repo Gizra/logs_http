@@ -21,7 +21,7 @@ class LogsHttpLogger implements LoggerInterface {
    *
    * @var \Drupal\Core\Config\Config
    */
-  protected static $config;
+  protected $config;
 
   /**
    * The message's placeholders parser.
@@ -38,17 +38,17 @@ class LogsHttpLogger implements LoggerInterface {
   protected $severityLevels;
 
   /**
-   * Cache the events.
+   * The cache of the events.
    *
    * @var array
    */
-  protected static $cache = [];
+  protected $cache = [];
 
   /**
    * Clear the events by setting a new array to the variable.
    */
   public function reset() {
-    static::$cache = [];
+    $this->cache = [];
   }
 
   /**
@@ -60,7 +60,7 @@ class LogsHttpLogger implements LoggerInterface {
    *   The parser to use when extracting message variables.
    */
   public function __construct(ConfigFactoryInterface $config_factory, LogMessageParserInterface $parser) {
-    static::$config = $config_factory->get('logs_http.settings');
+    $this->config = $config_factory->get('logs_http.settings');
     $this->logMessageParser = $parser;
     $this->severityLevels = RfcLogLevel::getLevels();
   }
@@ -69,7 +69,7 @@ class LogsHttpLogger implements LoggerInterface {
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = array()) {
-    if ($level > static::$config->get('severity_level')) {
+    if ($level > $this->config->get('severity_level')) {
       // Severity level is above the ones we want to log.
       return;
     }
@@ -84,11 +84,11 @@ class LogsHttpLogger implements LoggerInterface {
    * events are not captured twice, thus reducing the final HTTP requests needed.
    *
    * @param $level
-   *  The severity level.
+   *   The severity level.
    * @param message
-   *  The message that contains the placeholders.
+   *   The message that contains the placeholders.
    * @param array $context
-   *  The context as passed from the main Logger.
+   *   The context as passed from the main Logger.
    */
   protected function registerEvent($level, $message, array $context = []) {
     if (!$this->isEnabled()) {
@@ -117,7 +117,7 @@ class LogsHttpLogger implements LoggerInterface {
       $event['exception_trace'] = base64_decode($context['exception_trace']);
     }
 
-    if ($uuid = static::$config->get('uuid')) {
+    if ($uuid = $this->config->get('uuid')) {
       $event['uuid'] = $uuid;
     }
 
@@ -128,13 +128,11 @@ class LogsHttpLogger implements LoggerInterface {
     $event_clone = $event;
     unset($event_clone['timestamp']);
     $key = md5(serialize($event_clone));
-    static::$cache[$key] = $event;
+    $this->cache[$key] = $event;
   }
 
   /**
-   * Deep array filter.
-   *
-   * Remove empty values.
+   * Deep array filter; Remove empty values.
    *
    * @param $haystack
    *   The variable to filter.
@@ -159,30 +157,32 @@ class LogsHttpLogger implements LoggerInterface {
    * A getter for the current events.
    *
    * @return array
-   *  Returns the current events.
+   *   Returns the current events.
    */
   public function getEvents() {
-    return static::$cache;
+    return $this->cache;
   }
 
   /**
-   * Check if currently the configuration are set to send the errors and the url
-   * on the configuration is not empty.
+   * Check weather we should use Logs http module or not.
+   *
+   * Determine by checking the 'enabled' configuration, plus the 'url' must not
+   * be empty.
    *
    * @return bool
-   *  Returns TRUE if currently we should POST the data, otherwise returns FALSE.
+   *   Returns TRUE if currently we should POST the data, otherwise returns FALSE.
    */
   public function isEnabled() {
-    return !!static::$config->get('enabled') && !empty(static::getUrl());
+    return $this->config->get('enabled') && !empty($this->getUrl());
   }
 
   /**
    * A getter for the url of the endpoint we should send the data to.
    *
    * @return array|mixed|null
-   *  Returns the endpoint URL to POST data to.
+   *   Returns the endpoint URL to POST data to.
    */
   public function getUrl() {
-    return static::$config->get('url');
+    return $this->config->get('url');
   }
 }

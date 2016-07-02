@@ -51,8 +51,8 @@ class SettingsForm extends ConfigFormBase {
 
     $form['enabled'] = array(
       '#type' => 'checkbox',
-      '#title' => $this->t('Logs HTTP API'),
-      '#description' => $this->t('Enable Logs HTTP POST'),
+      '#title' => $this->t('Enable'),
+      '#description' => $this->t('Enable Logs HTTP'),
       '#default_value' => $config->get('enabled'),
     );
 
@@ -68,7 +68,7 @@ class SettingsForm extends ConfigFormBase {
       '#title' => $this->t('Watchdog Severity'),
       '#options' => RfcLogLevel::getLevels(),
       '#default_value' => $config->get('severity_level'),
-      '#description' => $this->t('The minimum severity level to be reached before an event is pushed to Logs.'),
+      '#description' => $this->t('The minimum severity level to be reached before an event is sent to Logs.'),
     );
 
     $form['uuid'] = array(

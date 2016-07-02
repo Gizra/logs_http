@@ -2,7 +2,6 @@
 
 /**
  * @file
- * Contains \Drupal\logs_http\EventSubscriber\LogsHttpEventSubscriber.
  */
 
 namespace Drupal\logs_http\EventSubscriber;
@@ -17,7 +16,7 @@ class LogsHttpEventSubscriber implements EventSubscriberInterface {
    * Initializes Logs http module requirements.
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
-   *  The event to process.
+   *   The event to process.
    */
   public function onRequest(GetResponseEvent $event) {
     drupal_register_shutdown_function('logs_http_shutdown');
@@ -31,6 +30,8 @@ class LogsHttpEventSubscriber implements EventSubscriberInterface {
    *   An array of event listener definitions.
    */
   static function getSubscribedEvents() {
+    // Setting high priority for this subscription in order to execute it soon
+    // enough.
     $events[KernelEvents::REQUEST][] = array('onRequest', 1000);
 
     return $events;

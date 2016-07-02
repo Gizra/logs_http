@@ -65,9 +65,10 @@ function _logs_http_decode_exception($exception) {
 /**
  * Runs on shutdown to clean up and display developer information.
  *
- * devel_boot() registers this function as a shutdown function.
+ * LogsHttpEventSubscriber registers this function as a shutdown function.
  */
 function logs_http_shutdown() {
+  /** @var LogsHttpLogger $logs_http_logger */
   $logs_http_logger = \Drupal::service('logs_http.logs_http_logger');
   if (!$logs_http_logger->isEnabled()) {
     return;
@@ -78,9 +79,6 @@ function logs_http_shutdown() {
   }
 
   $url = $logs_http_logger->getUrl();
-  if (!$url) {
-    return;
-  }
 
   // Send events to logs.
   foreach ($events as $event) {

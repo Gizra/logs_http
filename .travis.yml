@@ -53,19 +53,6 @@ before_script:
   # Wait until the web server is responding.
   - until curl -s localhost:8888; do true; done > /dev/null
 
-  # Start a log server on port 3000 in the background.
-  - DRUPALDIR=$(pwd)
-  - cd $TESTDIR
-  - php -S localhost:3000 > ./log_server.log 2>&1 &
-
-  # Wait until the log server is responding.
-  - until curl -s localhost:3000; do true; done > /dev/null
-  - cd $DRUPALDIR
-
 script:
   # Run the PHPUnit tests which also include the kernel tests.
   - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist ./modules/logs_http
-
-  # Print the log server results.
-  - cd $TESTDIR
-  - cat ./log_server.log
