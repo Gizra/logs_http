@@ -19,6 +19,7 @@ use Drupal\logs_http\Logger\LogsHttpLogger;
 class LogsHttpRegisterEventTest extends KernelTestBase {
 
   private $logsHttpConfig;
+  private $logsHttpLogger;
 
   /**
    * {@inheritdoc}
@@ -40,6 +41,8 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     $this->logsHttpConfig->set('url', 'http://www.example.com');
     $this->logsHttpConfig->set('severity_level', RfcLogLevel::ERROR);
     $this->logsHttpConfig->save();
+
+    $this->logsHttpLogger = \Drupal::service('logs_http.logs_http_logger');
   }
 
   /**
@@ -48,7 +51,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
   function testRegisterEvent() {
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
-    $events = LogsHttpLogger::getEvents();
+    $events = $this->logsHttpLogger->getEvents();
     $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
 
     // Set severity.
@@ -56,20 +59,20 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     $this->logsHttpConfig->save();
 
     // Test single event.
-    LogsHttpLogger::reset();
+    $this->logsHttpLogger->reset();
     \Drupal::logger('logs_http')->error('Notice 1');
-    $events = LogsHttpLogger::getEvents();
+    $events = $this->logsHttpLogger->getEvents();
     $this->assertEquals(1, count($events), 'Notice events registered.');
 
     // Test multiple events.
-    LogsHttpLogger::reset();
+    $this->logsHttpLogger->reset();
 
     // A duplicated event.
     \Drupal::logger('logs_http')->notice('Notice 1');
     \Drupal::logger('logs_http')->notice('Notice 1');
 
     \Drupal::logger('logs_http')->notice('Notice 2');
-    $events = LogsHttpLogger::getEvents();
+    $events = $this->logsHttpLogger->getEvents();
     $this->assertEquals(2, count($events), 'Correct number of events registered.');
 
     // Get the elements (as they are keyed by an md5 hash).

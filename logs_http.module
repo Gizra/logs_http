@@ -68,15 +68,16 @@ function _logs_http_decode_exception($exception) {
  * devel_boot() registers this function as a shutdown function.
  */
 function logs_http_shutdown() {
-  if (!LogsHttpLogger::isEnabled()) {
+  $logs_http_logger = \Drupal::service('logs_http.logs_http_logger');
+  if (!$logs_http_logger->isEnabled()) {
     return;
   }
 
-  if (!$events = LogsHttpLogger::getEvents()) {
+  if (!$events = $logs_http_logger->getEvents()) {
     return;
   }
 
-  $url = LogsHttpLogger::getUrl();
+  $url = $logs_http_logger->getUrl();
   if (!$url) {
     return;
   }
