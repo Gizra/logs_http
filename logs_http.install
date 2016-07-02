@@ -13,10 +13,6 @@ use Drupal\Core\Logger\RfcLogLevel;
  * Set all Logs http settings variables.
  */
 function logs_http_install() {
-  $config = \Drupal::configFactory()->getEditable('logs_http.settings');
-  $config->set('severity_level', RfcLogLevel::ERROR);
-  $config->save();
-
   // Making sure "logs_http" will be the first to fire subscribed events so it
   // can catch exceptions before any other extension module.
   module_set_weight('logs_http', -10);
