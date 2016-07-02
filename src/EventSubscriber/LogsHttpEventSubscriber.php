@@ -31,7 +31,7 @@ class LogsHttpEventSubscriber implements EventSubscriberInterface {
    *   An array of event listener definitions.
    */
   static function getSubscribedEvents() {
-    $events[KernelEvents::REQUEST][] = array('onRequest');
+    $events[KernelEvents::REQUEST][] = array('onRequest', 1000);
 
     return $events;
   }

@@ -8,17 +8,6 @@ use Drupal\Core\Logger\RfcLogLevel;
  */
 
 /**
- * Implements hook_install().
- *
- * Set all Logs http settings variables.
- */
-function logs_http_install() {
-  // Making sure "logs_http" will be the first to fire subscribed events so it
-  // can catch exceptions before any other extension module.
-  module_set_weight('logs_http', -10);
-}
-
-/**
  * Implements hook_uninstall().
  *
  * Delete all Logs http settings variables.
