@@ -70,7 +70,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
 
     \Drupal::logger('logs_http')->notice('Notice 2');
     $events = LogsHttpLogger::getEvents();
-    $this->assertEquals(2, count($events), 'Multiple events registered');
+    $this->assertEquals(2, count($events), 'Correct number of events registered.');
 
     // Get the elements (as they are keyed by an md5 hash).
     $event1 = array_shift($events);
