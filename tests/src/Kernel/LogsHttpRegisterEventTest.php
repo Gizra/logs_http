@@ -37,9 +37,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
 
     // Setup the configuration.
     $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
-    $this->logsHttpConfig->set('enabled', TRUE);
     $this->logsHttpConfig->set('url', 'http://www.example.com');
-    $this->logsHttpConfig->set('severity_level', RfcLogLevel::ERROR);
     $this->logsHttpConfig->save();
 
     $this->logsHttpLogger = \Drupal::service('logs_http.logs_http_logger');
@@ -52,7 +50,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
     $events = $this->logsHttpLogger->getEvents();
-    $this->assertFalse($events, 'No notice events registered, as severity level was to high.');
+    $this->assertFalse($events, 'No notice events registered, as severity level was too high.');
 
     // Set severity.
     $this->logsHttpConfig->set('severity_level', RfcLogLevel::NOTICE);
