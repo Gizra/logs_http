@@ -2,7 +2,6 @@
 
 /**
  * @file
- * Contains \Drupal\logs_http\Logger\LogsHttpLogger.
  */
 
 namespace Drupal\logs_http\Logger;

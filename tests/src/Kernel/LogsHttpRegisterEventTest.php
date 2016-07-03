@@ -2,7 +2,6 @@
 
 /**
  * @file
- * Contains LogsHttpRegisterEventTestCase.
  */
 
 namespace Drupal\Tests\logs_http\Kernel;

@@ -2,7 +2,6 @@
 
 /**
  * @file
- * Contains \Drupal\logs_http\Form\SettingsForm.
  */
 
 namespace Drupal\logs_http\Form;
