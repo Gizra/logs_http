@@ -89,7 +89,7 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    * @param array $context
    *   The context as passed from the main Logger.
    */
-  protected function registerEvent($level, $message, array $context = []) {
+  public function registerEvent($level, $message, array $context = []) {
     if (!$this->isEnabled()) {
       return;
     }
