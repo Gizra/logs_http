@@ -11,9 +11,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Logger\RfcLoggerTrait;
-use Psr\Log\LoggerInterface;
+use Drupal\logs_http\LoggerInterface\LogsHttpLoggerInterface;
 
-class LogsHttpLogger implements LoggerInterface {
+class LogsHttpLogger implements LogsHttpLoggerInterface {
   use RfcLoggerTrait;
 
   /**
@@ -78,7 +78,7 @@ class LogsHttpLogger implements LoggerInterface {
   }
 
   /**
-   * Register an event in a static cache.
+   * Register an event in the cache.
    *
    * To prevent multiple registration of the same error, we check that identical
    * events are not captured twice, thus reducing the final HTTP requests needed.
