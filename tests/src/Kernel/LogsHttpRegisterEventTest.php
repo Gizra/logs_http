@@ -73,7 +73,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     $events = $this->logsHttpLogger->getEvents();
     $this->assertEquals(2, count($events), 'Correct number of events registered.');
 
-    // Get the elements (as they are keyed by an md5 hash).
+    // Get the elements.
     $event1 = array_shift($events);
     $event2 = array_shift($events);
 
