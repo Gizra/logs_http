@@ -10,7 +10,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Logger\RfcLoggerTrait;
-use Drupal\logs_http\LoggerInterface\LogsHttpLoggerInterface;
 
 class LogsHttpLogger implements LogsHttpLoggerInterface {
   use RfcLoggerTrait;

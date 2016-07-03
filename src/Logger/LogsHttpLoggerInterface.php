@@ -1,13 +1,11 @@
 <?php
 
-namespace Drupal\logs_http\LoggerInterface;
+namespace Drupal\logs_http\Logger;
 
 use Psr\Log\LoggerInterface;
 
 /**
  * Describes a Logs Http Logger instance.
- *
- * @package Drupal\logs_http\LoggerInterface
  */
 Interface LogsHttpLoggerInterface extends LoggerInterface {
 
