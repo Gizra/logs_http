@@ -1,5 +1,0 @@
-name = logs_http
-description = "Client for the Logs HTTP API"
-core = "7.x"
-
-files[] = tests/LogsHttpRegisterEventTestCase.test

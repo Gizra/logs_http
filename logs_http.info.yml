@@ -1,0 +1,7 @@
+type: module
+name: Logs HTTP
+description: 'Logs HTTP API.'
+package: Logs HTTP
+core: 8.x
+configure: logs_http.admin_settings
+

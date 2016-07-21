@@ -1,0 +1,12 @@
+{
+    "name": "drupal/logs_http",
+    "description": "Client for the Logs HTTP API.",
+    "type": "drupal-module",
+    "license": "GPL-2.0+",
+    "homepage": "https://drupal.org/project/logs_http",
+    "support": {
+        "issues": "https://drupal.org/project/issues/logs_http",
+        "source": "https://cgit.drupalcode.org/logs_http"
+    },
+    "minimum-stability": "dev"
+}
