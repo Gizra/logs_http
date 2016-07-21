@@ -86,7 +86,7 @@ function logs_http_shutdown() {
 
     try {
       // Send data to Logs.
-      $response = $client->post($url, ['data' => Json::encode($event)]);
+      $client->post($url, ['json' => $event]);
     }
     catch (\GuzzleHttp\Exception\RequestException $e) {}
   }
