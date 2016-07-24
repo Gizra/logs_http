@@ -1,0 +1,5 @@
+logs_http.admin_settings:
+  title: 'Logs HTTP'
+  description: 'Administer Logs Client settings.'
+  route_name: logs_http.admin_settings
+  parent: 'system.admin_config_services'

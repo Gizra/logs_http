@@ -5,35 +5,10 @@
  * Logs HTTP module.
  */
 
-/**
- * Implements hook_menu().
- */
-function logs_http_menu() {
-  $items = array();
-
-  $items['admin/config/services/logs-http-client'] = array(
-    'type' => MENU_NORMAL_ITEM,
-    'title' => 'Logs HTTP Client',
-    'description' => 'Administer Logs Client settings.',
-    'access arguments' => array('administer logs http client'),
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('logs_http_admin_settings'),
-    'file' => 'logs_http.admin.inc',
-  );
-
-  return $items;
-}
-
-/**
- * Implements hook_boot().
- *
- * Runs even for cached pages.
- */
-function logs_http_boot() {
-  drupal_register_shutdown_function('logs_http_shutdown');
-  set_exception_handler('_logs_http_exception_handler');
-}
-
+use Drupal\Component\Serialization\Json;
+use Drupal\Component\Utility\Crypt;
+use Drupal\Core\Utility\Error;
+use Drupal\logs_http\Logger\LogsHttpLogger;
 
 /**
  * Provides custom PHP exception handling.
@@ -48,20 +23,20 @@ function logs_http_boot() {
  * @see _drupal_exception_handler()
  */
 function _logs_http_exception_handler($exception) {
-  require_once DRUPAL_ROOT . '/includes/errors.inc';
+  require_once DRUPAL_ROOT . '/core/includes/errors.inc';
 
   try {
     // Log the message to the watchdog and return an error page to the user.
     _drupal_log_error(_logs_http_decode_exception($exception), TRUE);
   }
-  catch (Exception $exception2) {
-    // Another uncaught exception was thrown while handling the first one.
-    // If we are displaying errors, then do so with no possibility of a further uncaught exception being thrown.
-    if (error_displayable()) {
-      print '<h1>Additional uncaught exception thrown while handling exception.</h1>';
-      print '<h2>Original</h2><p>' . _drupal_render_exception_safe($exception) . '</p>';
-      print '<h2>Additional</h2><p>' . _drupal_render_exception_safe($exception2) . '</p><hr />';
-    }
+    // PHP 7 introduces Throwable, which covers both Error and
+    // Exception throwables.
+  catch (\Throwable $error) {
+    _drupal_exception_handler_additional($exception, $error);
+  }
+    // In order to be compatible with PHP 5 we also catch regular Exceptions.
+  catch (\Exception $exception2) {
+    _drupal_exception_handler_additional($exception, $exception2);
   }
 }
 
@@ -77,162 +52,42 @@ function _logs_http_exception_handler($exception) {
  * @see _drupal_decode_exception()
  */
 function _logs_http_decode_exception($exception) {
-  $return = _drupal_decode_exception($exception);
+  $return = Error::decodeException($exception);
 
   // We have to serialize and encode the array here to prevent a notice in
   // theme_dblog_message(). We will decode the string back in
   // logs_http_watchdog()
-  $return['exception_trace'] = drupal_base64_encode(serialize($exception->getTrace()));
-  return $return;
+  $return['exception_trace'] = Crypt::hashBase64(serialize($exception->getTrace()));
 
+  return $return;
 }
 
 /**
  * Runs on shutdown to clean up and display developer information.
  *
- * devel_boot() registers this function as a shutdown function.
+ * LogsHttpEventSubscriber registers this function as a shutdown function.
  */
 function logs_http_shutdown() {
-  if (!$events = logs_http_get_registered_events()) {
+  /** @var LogsHttpLogger $logs_http_logger */
+  $logs_http_logger = \Drupal::service('logs_http.logs_http_logger');
+  if (!$logs_http_logger->isEnabled()) {
     return;
   }
 
-  $url = logs_http_get_http_url();
+  if (!$events = $logs_http_logger->getEvents()) {
+    return;
+  }
+
+  $url = $logs_http_logger->getUrl();
 
   // Send events to logs.
   foreach ($events as $event) {
-    $options = array(
-      'method' => 'POST',
-      'data' => drupal_json_encode($event),
-    );
+    $client = \Drupal::httpClient();
 
-    // Send data to Logs.
-    $response = drupal_http_request($url, $options);
-  }
-}
-
-/**
- * Register an event in a static cache.
- *
- * To prevent multiple registration of the same error, we check that identical
- * events are not captured twice, thus reducing the final HTTP requests needed.
- *
- * @param array $log_entry
- *   The entry log as passed from hook_watchdog().
- */
-function logs_http_register_event(array $log_entry) {
-  if (!logs_http_get_http_url()) {
-    return;
-  }
-
-  $events = &drupal_static('logs_http_events', array());
-
-  $event = array(
-    'timestamp' => $log_entry['timestamp'],
-    'type' => $log_entry['type'],
-    'ip' => $log_entry['ip'],
-    'request_uri' => $log_entry['request_uri'],
-    'referer' => $log_entry['referer'],
-    'uid' => $log_entry['uid'],
-    'link' => strip_tags($log_entry['link']),
-    'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-    'severity' => $log_entry['severity'],
-  );
-
-  if (!empty($log_entry['variables']['exception_trace'])) {
-    // @todo: We avoid unserializing as it seems to causes Logs to fail
-    // to index event as JSON.
-    $event['exception_trace'] = base64_decode($log_entry['variables']['exception_trace']);
-  }
-
-  if ($uuid = variable_get('logs_http_uuid')) {
-    $event['uuid'] = $uuid;
-  }
-
-  // Remove empty values, to prevent errors in the indexing of the JSON.
-  $event = logs_http_array_remove_empty($event);
-
-  // Prevent identical events.
-  $event_clone = $event;
-  unset($event_clone['timestamp']);
-  $key = md5(serialize($event_clone));
-  $events[$key] = $event;
-}
-
-/**
- * Get the registered events from the static cache.
- *
- * @return array
- *   Array of events.
- */
-function logs_http_get_registered_events() {
-  $events = &drupal_static('logs_http_events', array());
-  return $events;
-}
-
-/**
- * Implements hook_permission().
- */
-function logs_http_permission() {
-  $permissions = array();
-
-  $permissions['administer logs http client'] = array(
-    'title' => t('Administer Logs HTTP client'),
-  );
-
-  return $permissions;
-}
-
-/**
- * Implements hook_watchdog().
- *
- * Register watchdog events.
- */
-function logs_http_watchdog(array $log_entry) {
-  if ($log_entry['severity'] > variable_get('logs_http_severity_level', WATCHDOG_ERROR)) {
-    // Severity level is above the ones we want to log.
-    return;
-  }
-
-  logs_http_register_event($log_entry);
-}
-
-/**
- * Return the endpoint URL to POST data to.
- *
- * @return string
- *   Return the URL if exists, or NULL if disabled.
- */
-function logs_http_get_http_url() {
-  if (!variable_get('logs_http_enabled', TRUE) || !variable_get('logs_http_url')) {
-    // Don't register the event.
-    return;
-  }
-
-  return variable_get('logs_http_url');
-}
-
-/**
- * Deep array filter.
- *
- * Remove empty values.
- *
- * @param $haystack
- *   The variable to filter.
- *
- * @return mixed
- */
-function logs_http_array_remove_empty($haystack) {
-  foreach ($haystack as $key => $value) {
-    if (is_array($value)) {
-      $haystack[$key] = logs_http_array_remove_empty($haystack[$key]);
+    try {
+      // Send data to Logs.
+      $client->post($url, ['json' => $event]);
     }
-
-    if (empty($haystack[$key])) {
-      unset($haystack[$key]);
-    }
+    catch (\GuzzleHttp\Exception\RequestException $e) {}
   }
-
-  return $haystack;
 }
-

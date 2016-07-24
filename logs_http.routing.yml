@@ -1,0 +1,8 @@
+logs_http.admin_settings:
+  path: '/admin/config/services/logs-http-client'
+  defaults:
+    _form: '\Drupal\logs_http\Form\SettingsForm'
+    _title: 'Logs HTTP Client'
+    _description: 'Administer Logs Client settings.'
+  requirements:
+    _permission: 'administer logs http client'

@@ -2,15 +2,14 @@
 
 /**
  * @file
- * Install, update and uninstall functions for the Logs HTTP module.
+ * Uninstall function for the Logs HTTP module.
  */
 
 /**
  * Implements hook_uninstall().
+ *
+ * Delete all Logs http configuration.
  */
 function logs_http_uninstall() {
-  variable_del('logs_http_url');
-  variable_del('logs_http_enabled');
-  variable_del('logs_severity_level');
-  variable_del('logs_http_uuid');
+  \Drupal::configFactory()->getEditable('logs_http.settings')->delete();
 }
