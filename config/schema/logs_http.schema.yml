@@ -1,0 +1,14 @@
+# Schema for the configuration files of the Logs HTTP module.
+
+logs_http.settings:
+  type: config_object
+  label: 'Logs HTTP settings'
+  mapping:
+    enabled:
+      type: boolean
+    url:
+      type: string
+    uuid:
+      type: string
+    severity_level:
+      type: integer

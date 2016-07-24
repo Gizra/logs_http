@@ -1,0 +1,5 @@
+enabled: true
+url: null
+uuid: null
+# Severity level "3" refers to "RfcLogLevel::ERROR".
+severity_level: 3

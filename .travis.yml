@@ -1,7 +1,20 @@
 language: php
+sudo: false
 
 php:
-  - 5.3
+  - 5.5
+  - 5.6
+  - 7.0
+
+env:
+  global:
+    # Export database variable for kernel tests.
+    - SIMPLETEST_DB=mysql://root:@127.0.0.1/logs_http
+    # Export web server URL for browser tests.
+    - SIMPLETEST_BASE_URL=http://localhost:8888
+  matrix:
+    - DRUPAL_CORE=8.1.x
+    - DRUPAL_CORE=8.2.x
 
 mysql:
   database: logs_http
@@ -9,29 +22,37 @@ mysql:
   encoding: utf8
 
 before_script:
-  # navigate out of module directory to prevent blown stack by recursive module lookup
-  - cd ../..
+  # Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
+  # function nesting level of '256' reached."
+  # We also don't care if that file exists or not on PHP 7.
+  - phpenv config-rm xdebug.ini || true
 
-  # install drush
-  - pear channel-discover pear.drush.org
-  - pear install drush/drush-5.8.0
-  - phpenv rehash
+  # Remember the current directory for later use in the Drupal installation.
+  - TESTDIR=$(pwd)
 
-  # install php packages required for running a web server from drush on php 5.3
-  - sudo apt-get update > /dev/null
-  - sudo apt-get install -y --force-yes php5-cgi php5-mysql
+  # Navigate out of module directory to prevent blown stack by recursive module
+  # lookup.
+  - cd ..
 
-  # create new site, stubbing sendmail path with true to prevent delivery errors and manually resolving drush path
+  # Create database.
   - mysql -e 'create database logs_http'
-  - php -d sendmail_path=`which true` `pear config-get php_dir`/drush/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/logs_http --enable=simpletest logs_http
 
-  # reference and enable logs_http in build site
-  - ln -s $(readlink -e $(cd -)) logs_http/drupal/sites/all/modules/logs_http
-  - cd logs_http/drupal
-  - drush --yes pm-enable logs_http
+  # Download Drupal 8 core.
+  - travis_retry git clone --branch $DRUPAL_CORE --depth 1 https://git.drupal.org/project/drupal.git
+  - cd drupal
 
-  # start a web server on port 8080, run in the background; wait for initialization
-  - drush runserver 127.0.0.1:8080 &
-  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+  # Install Composer dependencies.
+  - composer self-update && composer install
 
-script: drush test-run "Logs HTTP" --uri=http://127.0.0.1:8080 --verbose
+  # Reference OG in the Drupal site.
+  - ln -s $TESTDIR modules/logs_http
+
+  # Start a web server on port 8888 in the background.
+  - nohup php -S localhost:8888 > /dev/null 2>&1 &
+
+  # Wait until the web server is responding.
+  - until curl -s localhost:8888; do true; done > /dev/null
+
+script:
+  # Run the PHPUnit tests which also include the kernel tests.
+  - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist ./modules/logs_http
