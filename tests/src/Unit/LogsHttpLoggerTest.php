@@ -56,23 +56,44 @@ class LogsHttpLoggerTest extends UnitTestCase {
    * Tests isEnabled method.
    *
    * @covers ::isEnabled
+   * @dataProvider isEnabledProvider
    */
-  public function testIsEnabled() {
+  public function testIsEnabled($enabled, $url, $expected) {
     $this
       ->config
       ->get('enabled')
-      ->willReturn(TRUE);
+      ->willReturn($enabled);
 
     $this
       ->config
       ->get('url')
-      ->willReturn($this->randomMachineName());
+      ->willReturn($url);
 
 
     $logger = new LogsHttpLogger($this->config->reveal(), $this->logMessageParser->reveal());
     $result = $logger->isEnabled();
 
-    $this->assertEquals(TRUE, $result);
+    $this->assertEquals($expected, $result);
+  }
+
+
+  /**
+   * Provides test data to test isEnabled.
+   *
+   * @return array
+   *   Array with:
+   *   - "enabled" boolean value.
+   *   - "url" string value.
+   *   - The expected result.
+   *
+   */
+  public function isEnabledProvider() {
+    return [
+      [FALSE, '', FALSE],
+      [FALSE, 'https://example.com', FALSE],
+      [TRUE, '', FALSE],
+      [TRUE, 'https://example.com', TRUE],
+    ];
   }
 
 }
