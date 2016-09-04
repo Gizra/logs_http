@@ -37,6 +37,20 @@ class LogsHttpLoggerTest extends UnitTestCase {
    */
   protected $severityLevels;
 
+  /**
+   * The message to log.
+   *
+   * @var string
+   */
+  protected $message;
+
+  /**
+   * The context array with the log data.
+   *
+   * @var array
+   */
+  protected $context;
+
 
   /**
    * {@inheritdoc}
@@ -45,6 +59,10 @@ class LogsHttpLoggerTest extends UnitTestCase {
     $this->config = $this->prophesize(ConfigFactoryInterface::class);
     $this->logMessageParser = $this->prophesize(LogMessageParserInterface::class);
     $this->severityLevels = RfcLogLevel::getLevels();
+    $this->message = $this->randomMachineName();
+    $this->context = [
+      'timestamp' => time(),
+    ];
 
     $this
       ->config
@@ -74,6 +92,28 @@ class LogsHttpLoggerTest extends UnitTestCase {
     $result = $logger->isEnabled();
 
     $this->assertEquals($expected, $result);
+  }
+
+  /**
+   * Test register event when setting is disabled.
+   *
+   * @covers ::registerEvent
+   */
+  public function testRegisterEventDisabled() {
+    $this
+      ->config
+      ->get('enabled')
+      ->willReturn(FALSE);
+
+    $this
+      ->config
+      ->get('url')
+      ->willReturn($this->randomMachineName());
+
+    $logger = new LogsHttpLogger($this->config->reveal(), $this->logMessageParser->reveal());
+    $logger->registerEvent(RfcLogLevel::CRITICAL, $this->message,  $this->context);
+
+    $this->assertEmpty($logger->getCache());
   }
 
 
