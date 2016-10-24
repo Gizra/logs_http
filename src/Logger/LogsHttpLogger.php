@@ -99,14 +99,15 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
 
     $event = [
       'timestamp' => $context['timestamp'],
-      'type' => $this->severityLevels[$level]->getUntranslatedString(),
+      'type' => $context['channel'],
       'ip' => $context['ip'],
       'request_uri' => $context['request_uri'],
       'referer' => $context['referer'],
       'uid' => $context['uid'],
       'link' => strip_tags($context['link']),
       'message' => $message,
-      'severity' => $level,
+      'severity' => $this->severityLevels[$level]->getUntranslatedString(),
+      'severity_code' => $this->severityLevels[$level],
     ];
 
     if (!empty($context['exception_trace'])) {
