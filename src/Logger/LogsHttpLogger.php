@@ -107,7 +107,7 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       'link' => strip_tags($context['link']),
       'message' => $message,
       'severity' => $this->severityLevels[$level]->getUntranslatedString(),
-      'severity_code' => $this->severityLevels[$level],
+      'severity_level' => $level,
     ];
 
     if (!empty($context['exception_trace'])) {
