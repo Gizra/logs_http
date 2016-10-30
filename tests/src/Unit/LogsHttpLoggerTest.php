@@ -80,6 +80,9 @@ class LogsHttpLoggerTest extends UnitTestCase {
   /**
    * Provides test data to test isEnabled.
    *
+   * In order to isEnabled method to return TRUE, the 'enabled' configuration
+   * must be TRUE and the url must not be empty.
+   *
    * @return array
    *   Array with:
    *   - "enabled" boolean value.
