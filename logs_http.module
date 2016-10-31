@@ -126,6 +126,8 @@ function logs_http_register_event(array $log_entry) {
   }
 
   $events = &drupal_static('logs_http_events', array());
+  
+  $severity_levels = watchdog_severity_levels();
 
   $event = array(
     'timestamp' => $log_entry['timestamp'],
@@ -136,7 +138,7 @@ function logs_http_register_event(array $log_entry) {
     'uid' => $log_entry['uid'],
     'link' => strip_tags($log_entry['link']),
     'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-    'severity' => watchdog_severity_levels()[$log_entry['severity']],
+    'severity' => $severity_levels[$log_entry['severity']],
     'severity_level' => $log_entry['severity'],
   );
 
