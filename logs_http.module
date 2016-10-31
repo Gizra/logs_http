@@ -136,7 +136,8 @@ function logs_http_register_event(array $log_entry) {
     'uid' => $log_entry['uid'],
     'link' => strip_tags($log_entry['link']),
     'message' => empty($log_entry['variables']) ? $log_entry['message'] : strtr($log_entry['message'], $log_entry['variables']),
-    'severity' => $log_entry['severity'],
+    'severity' => watchdog_severity_levels()[$log_entry['severity']],
+    'severity_level' => $log_entry['severity'],
   );
 
   if (!empty($log_entry['variables']['exception_trace'])) {
