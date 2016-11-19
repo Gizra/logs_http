@@ -49,8 +49,12 @@ before_script:
   - cd logs_http/drupal
   - drush --yes pm-enable logs_http
 
-  # start a web server on port 8080, run in the background; wait for initialization
-  - drush runserver 127.0.0.1:8080 &
-  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+  # start a web server on port 8080, run in the background;
+  - drush runserver 127.0.0.1:8080 > ~/php-server.log 2>&1 &
 
 script: drush test-run "Logs HTTP" --uri=http://127.0.0.1:8080 --verbose
+
+#script:
+#  - php scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url 127.0.0.1:8080 Message 2>&1 | tee /tmp/simpletest-result.txt
+#  - egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
+#  - exit 0
