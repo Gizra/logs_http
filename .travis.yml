@@ -44,17 +44,15 @@ before_script:
   - mysql -e 'create database logs_http'
   - php -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/logs_http --enable=simpletest logs_http
 
-  # reference and enable logs_http in build site
+  # reference and enable logs_http in build site.
   - ln -s $(readlink -e $(cd -)) logs_http/drupal/sites/all/modules/logs_http
   - cd logs_http/drupal
   - drush --yes pm-enable logs_http
 
-  # start a web server on port 8080, run in the background;
+  # start a web server on port 8080, run in the background.
   - drush runserver 127.0.0.1:8080 > ~/php-server.log 2>&1 &
 
-script: drush test-run "Logs HTTP" --uri=http://127.0.0.1:8080 --verbose
-
-#script:
-#  - php scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url 127.0.0.1:8080 Message 2>&1 | tee /tmp/simpletest-result.txt
-#  - egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
-#  - exit 0
+script:
+  - php scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url 127.0.0.1:8080 "Logs Http" 2>&1 | tee /tmp/simpletest-result.txt
+  - egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
+  - exit 0
