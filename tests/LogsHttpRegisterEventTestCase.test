@@ -54,7 +54,7 @@ class LogsHttpRegisterEventTestCase extends DrupalWebTestCase {
     $event1 = array_shift($events);
     $event2 = array_shift($events);
 
-    $this->assertEqual($event1['message'], 'Notice 1', 'Correct first event registered.');
+    $this->assertEqual($event1['message'], 'Notice sssssss1', 'Correct first event registered.');
     $this->assertEqual($event2['message'], 'Notice 2', 'Correct second event registered.');
   }
 }
