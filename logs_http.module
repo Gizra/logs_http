@@ -125,7 +125,7 @@ function logs_http_rollbar_post($events, $url) {
   global $user;
   $config = array(
     // required
-    'access_token' => variable_get('logs_http_rollbar_access_token', NULL), //'24fc631c68954e4cbb385d8903f361a7',
+    'access_token' => variable_get('logs_http_rollbar_access_token', NULL),
     'local_username' => $user->name,
     // optional - environment name. any string will do.
     'environment' => variable_get('logs_http_uuid', 'production'),
