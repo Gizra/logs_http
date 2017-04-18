@@ -34,14 +34,14 @@ function logs_http_admin_settings($form, &$form_state) {
   $form['logs_http_rollbar_access_token'] = array(
     '#type' => 'textfield',
     '#size' => 100,
-    '#title' => t('Rollbar Access Token'),
+    '#title' => t('Rollbar Server Access Token'),
     '#default_value' => variable_get('logs_http_rollbar_access_token', NULL),
   );
 
   $form['logs_http_rollbar_access_token_js'] = array(
     '#type' => 'textfield',
     '#size' => 100,
-    '#title' => t('Rollbar Access Token for javascript'),
+    '#title' => t('Rollbar Client Access Token (javascript)'),
     '#description' => t('Type 0 to disable'),
     '#default_value' => variable_get('logs_http_rollbar_access_token_js', 0),
   );
