@@ -18,9 +18,32 @@ function logs_http_admin_settings($form, &$form_state) {
 
   $form['logs_http_url'] = array(
     '#type' => 'textfield',
+    '#size' => 100,
     '#title' => t('Endpoint'),
     '#description' => t('The URL to POST the data to.'),
     '#default_value' => variable_get('logs_http_url', NULL),
+  );
+
+  $form['logs_http_use_rollbar'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use rollbar API'),
+    '#description' => t('Enable Logs HTTP POST for rollbar'),
+    '#default_value' => variable_get('logs_http_use_rollbar', FALSE),
+  );
+
+  $form['logs_http_rollbar_access_token'] = array(
+    '#type' => 'textfield',
+    '#size' => 100,
+    '#title' => t('Rollbar Access Token'),
+    '#default_value' => variable_get('logs_http_rollbar_access_token', NULL),
+  );
+
+  $form['logs_http_rollbar_access_token_js'] = array(
+    '#type' => 'textfield',
+    '#size' => 100,
+    '#title' => t('Rollbar Access Token for javascript'),
+    '#description' => t('Type 0 to disable'),
+    '#default_value' => variable_get('logs_http_rollbar_access_token_js', 0),
   );
 
   $options = array(
