@@ -165,7 +165,7 @@ function logs_http_rollbar_post($events, $url) {
  */
 function logs_http_init() {
 
-  // If php support is turned off then return
+  // If php support is turned off then return.
   if (!variable_get('logs_http_rollbar_access_token_js', 0)) {
     return;
   }
@@ -173,9 +173,9 @@ function logs_http_init() {
   if (!$url = logs_http_get_http_url()) {
     return;
   }
-  // client settings
+  // Client settings.
   $token = check_plain(variable_get('logs_http_rollbar_access_token_js', ''));
-  $env = check_plain(variable_get('rollbar_environment', 'production'));
+  $env = check_plain(variable_get('logs_http_uuid', 'development'));
 
   // I had some issues appending this via jQuery and using Drupal.behaviors,
   // so have opted to use javascript, in line with Rollbar.com
