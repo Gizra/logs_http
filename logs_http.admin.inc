@@ -69,7 +69,7 @@ function logs_http_admin_settings($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Unique ID'),
     '#description' => t('An arbitrary ID that will identify the environment.'),
-    '#default_value' => variable_get('logs_http_uuid'),
+    '#default_value' => variable_get('development'),
   );
 
   return system_settings_form($form);

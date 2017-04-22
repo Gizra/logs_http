@@ -126,9 +126,9 @@ function logs_http_rollbar_post($events, $url) {
   $config = array(
     // required
     'access_token' => variable_get('logs_http_rollbar_access_token', NULL),
-    'local_username' => $user->name,
+    'local_username' => isset($user->name) ? $user->name : 'anonymous',
     // optional - environment name. any string will do.
-    'environment' => variable_get('logs_http_uuid', 'production'),
+    'environment' => variable_get('logs_http_uuid', 'development'),
     'base_api_url' => $url,
   );
   // Log with Rollbar
