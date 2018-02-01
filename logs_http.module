@@ -82,6 +82,10 @@ function logs_http_shutdown() {
 
   // Send events to logs.
   foreach ($events as $event) {
+    // Allows to alter an event by adding new properties.
+    $module_handler = \Drupal::moduleHandler();
+    $module_handler->alter('logs_http_event', $event);
+
     $client = \Drupal::httpClient();
 
     try {
