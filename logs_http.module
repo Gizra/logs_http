@@ -104,6 +104,9 @@ function logs_http_shutdown() {
     $options = array(
       'method' => 'POST',
       'data' => drupal_json_encode($event),
+      'headers' => array (
+        'Content-Type' => 'application/json',
+      ),
     );
 
     // Send data to Logs.
