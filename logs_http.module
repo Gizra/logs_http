@@ -98,16 +98,27 @@ function logs_http_shutdown() {
   }
 
   $url = logs_http_get_http_url();
-
+  $requests = array();
   // Send events to logs.
   foreach ($events as $event) {
-    $options = array(
-      'method' => 'POST',
+    $requests[] = array(
+      'event' => $event,
       'data' => drupal_json_encode($event),
     );
+  }
 
-    // Send data to Logs.
+  drupal_alter('logs_http_requests', $requests);
+
+  foreach ($requests as $key => $request) {
+    $options = array(
+      'method' => 'POST',
+      'data' => $request['data'],
+    );
     $response = drupal_http_request($url, $options);
+
+    if ($response->code != '200') {
+      module_invoke_all('logs_http_error', $response);
+    }
   }
 }
 
