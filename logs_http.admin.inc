@@ -19,6 +19,7 @@ function logs_http_admin_settings($form, &$form_state) {
   $form['logs_http_url'] = array(
     '#type' => 'textfield',
     '#title' => t('Endpoint'),
+    '#maxlength' => 2000,
     '#description' => t('The URL to POST the data to.'),
     '#default_value' => variable_get('logs_http_url', NULL),
   );
