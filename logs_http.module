@@ -117,7 +117,10 @@ function logs_http_shutdown() {
     $response = drupal_http_request($url, $options);
 
     if ($response->code != '200') {
-      module_invoke_all('logs_http_error', $response);
+      module_invoke_all('logs_http_request_error', $response);
+    }
+    else {
+      module_invoke_all('logs_http_request_success', $response);
     }
   }
 }
