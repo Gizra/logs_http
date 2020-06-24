@@ -16,8 +16,8 @@ env:
     # Export web server URL for browser tests.
     - SIMPLETEST_BASE_URL=http://localhost:8888
   matrix:
-    - DRUPAL_CORE=8.1.x
-    - DRUPAL_CORE=8.2.x
+    - DRUPAL_CORE=8.5.x
+    - DRUPAL_CORE=8.9.x
 
 mysql:
   database: logs_http
