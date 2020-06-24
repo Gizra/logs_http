@@ -7,7 +7,6 @@ services:
 php:
   - 7.2
   - 7.3
-  - 7.4
 
 env:
   global:
@@ -16,7 +15,7 @@ env:
     # Export web server URL for browser tests.
     - SIMPLETEST_BASE_URL=http://localhost:8888
   matrix:
-    - DRUPAL_CORE=8.5.x
+    - DRUPAL_CORE=8.8.x
     - DRUPAL_CORE=8.9.x
 
 mysql:
