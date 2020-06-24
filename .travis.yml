@@ -19,6 +19,11 @@ env:
     - DRUPAL_CORE=8.9.x
     - DRUPAL_CORE=9.0.x
 
+jobs:
+  allow_failures:
+    php: 7.2
+    env: DRUPAL_CORE=9.0.x
+
 mysql:
   database: logs_http
   username: root
