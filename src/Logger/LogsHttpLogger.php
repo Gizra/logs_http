@@ -115,8 +115,8 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       $event['exception_trace'] = base64_decode($context['exception_trace']);
     }
 
-    if ($uuid = $this->config->get('uuid')) {
-      $event['uuid'] = $uuid;
+    if ($environment_uuid = $this->config->get('environment_uuid')) {
+      $event['uuid'] = $environment_uuid;
     }
 
     // Remove empty values, to prevent errors in the indexing of the JSON.
