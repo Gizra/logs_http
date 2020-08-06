@@ -70,11 +70,11 @@ class SettingsForm extends ConfigFormBase {
       '#description' => $this->t('The minimum severity level to be reached before an event is sent to Logs.'),
     );
 
-    $form['uuid'] = array(
+    $form['environment_uuid'] = array(
       '#type' => 'textfield',
       '#title' => $this->t('Unique ID'),
       '#description' => $this->t('An arbitrary ID that will identify the environment.'),
-      '#default_value' => $config->get('uuid'),
+      '#default_value' => $config->get('environment_uuid'),
     );
 
     return parent::buildForm($form, $form_state);

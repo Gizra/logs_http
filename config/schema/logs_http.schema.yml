@@ -8,7 +8,7 @@ logs_http.settings:
       type: boolean
     url:
       type: string
-    uuid:
+    environment_uuid:
       type: string
     severity_level:
       type: integer
