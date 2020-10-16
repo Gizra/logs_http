@@ -110,9 +110,7 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
     ];
 
     if (!empty($context['exception_trace'])) {
-      // We avoid unserializing as it seems to causes Logs to fail to index
-      // event as JSON.
-      $event['exception_trace'] = base64_decode($context['exception_trace']);
+      $event['exception_trace'] = $context['exception_trace'];
     }
 
     if ($environment_uuid = $this->config->get('environment_uuid')) {
