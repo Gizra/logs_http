@@ -54,9 +54,6 @@ function _logs_http_exception_handler($exception) {
 function _logs_http_decode_exception($exception) {
   $return = Error::decodeException($exception);
 
-  // We have to serialize and encode the array here to prevent a notice in
-  // theme_dblog_message(). We will decode the string back in
-  // logs_http_watchdog()
   $return['exception_trace'] = $exception->getTraceAsString();
 
   return $return;
