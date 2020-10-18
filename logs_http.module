@@ -5,8 +5,6 @@
  * Logs HTTP module.
  */
 
-use Drupal\Component\Serialization\Json;
-use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Utility\Error;
 use Drupal\logs_http\Logger\LogsHttpLogger;
 
@@ -27,7 +25,7 @@ function _logs_http_exception_handler($exception) {
 
   try {
     // Log the message to the watchdog and return an error page to the user.
-    _drupal_log_error(_logs_http_decode_exception($exception), TRUE);
+    _drupal_log_error(Error::decodeException($exception), TRUE);
   }
     // PHP 7 introduces Throwable, which covers both Error and
     // Exception throwables.
@@ -38,25 +36,6 @@ function _logs_http_exception_handler($exception) {
   catch (\Exception $exception2) {
     _drupal_exception_handler_additional($exception, $exception2);
   }
-}
-
-/**
- * Decodes an exception and retrieves the correct caller.
- *
- * @param $exception
- *   The exception object that was thrown.
- *
- * @return array
- *   An error in the format expected by _drupal_log_error().
- *
- * @see _drupal_decode_exception()
- */
-function _logs_http_decode_exception($exception) {
-  $return = Error::decodeException($exception);
-
-  $return['exception_trace'] = $exception->getTraceAsString();
-
-  return $return;
 }
 
 /**

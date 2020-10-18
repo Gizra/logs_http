@@ -109,8 +109,8 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       'severity' => $level,
     ];
 
-    if (!empty($context['exception_trace'])) {
-      $event['exception_trace'] = $context['exception_trace'];
+    if (!empty($context['@backtrace_string'])) {
+      $event['exception_trace'] = $context['@backtrace_string'];
     }
 
     if ($environment_uuid = $this->config->get('environment_uuid')) {
