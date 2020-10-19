@@ -75,19 +75,12 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
   }
 
   /**
-   * Register an event in the cache.
+   * {@inheritdoc}
    *
    * To prevent multiple registration of the same error, we check that identical
    * events are not captured twice, thus reducing the final HTTP requests needed.
-   *
-   * @param $level
-   *   The severity level.
-   * @param message
-   *   The message that contains the placeholders.
-   * @param array $context
-   *   The context as passed from the main Logger.
    */
-  public function registerEvent($level, $message, array $context = []) {
+  public function registerEvent($level, string $message, array $context = []) {
     if (!$this->isEnabled()) {
       return;
     }
