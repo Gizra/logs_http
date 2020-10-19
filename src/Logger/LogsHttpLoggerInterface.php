@@ -28,7 +28,7 @@ interface LogsHttpLoggerInterface extends LoggerInterface {
    *     return [];
    *   }
    *
-   *   // Update out custom value(s).
+   *   // Update our custom value(s).
    *   $event['foo'] = 'bar';
    *
    *   return $event;
