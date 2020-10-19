@@ -5,34 +5,7 @@
  * Logs HTTP module.
  */
 
-use Drupal\Core\Utility\Error;
 use Drupal\logs_http\Logger\LogsHttpLogger;
-
-/**
- * Provides custom PHP exception handling.
- *
- * Uncaught exceptions are those not enclosed in a try/catch block. They are
- * always fatal: the execution of the script will stop as soon as the exception
- * handler exits.
- *
- * @param $exception
- *   The exception object that was thrown.
- *
- * @see _drupal_exception_handler()
- */
-function _logs_http_exception_handler($exception) {
-  require_once DRUPAL_ROOT . '/core/includes/errors.inc';
-
-  try {
-    // Log the message to the watchdog and return an error page to the user.
-    _drupal_log_error(Error::decodeException($exception), TRUE);
-  }
-    // PHP 7 introduces Throwable, which covers both Error and
-    // Exception throwables.
-  catch (\Throwable $error) {
-    _drupal_exception_handler_additional($exception, $error);
-  }
-}
 
 /**
  * Runs on shutdown to clean up and display developer information.
