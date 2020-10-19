@@ -32,10 +32,6 @@ function _logs_http_exception_handler($exception) {
   catch (\Throwable $error) {
     _drupal_exception_handler_additional($exception, $error);
   }
-    // In order to be compatible with PHP 5 we also catch regular Exceptions.
-  catch (\Exception $exception2) {
-    _drupal_exception_handler_additional($exception, $exception2);
-  }
 }
 
 /**
