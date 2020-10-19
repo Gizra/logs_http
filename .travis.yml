@@ -20,6 +20,11 @@ env:
     - DRUPAL_CORE=9.0.x
 
 jobs:
+  include:
+    - stage: lint
+      script: echo Lint
+      php: 7.4
+      ENV: DRUPAL_CORE=9.0.x
   allow_failures:
     php: 7.2
     env: DRUPAL_CORE=9.0.x
