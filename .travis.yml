@@ -13,14 +13,9 @@ env:
     - SIMPLETEST_DB=mysql://root:@127.0.0.1/logs_http
     # Export web server URL for browser tests.
     - SIMPLETEST_BASE_URL=http://localhost:8888
-  matrix:
+  jobs:
     - DRUPAL_CORE=8.8.x
     - DRUPAL_CORE=8.9.x
-
-mysql:
-  database: logs_http
-  username: root
-  encoding: utf8
 
 before_script:
   # Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
