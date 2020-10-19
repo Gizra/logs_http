@@ -66,6 +66,11 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    * {@inheritdoc}
    */
   public function log($level, $message, array $context = []) {
+    if (!$this->isEnabled()) {
+      // Service is disabled.
+      return;
+    }
+
     if ($level > $this->config->get('severity_level')) {
       // Severity level is above the ones we want to log.
       return;
@@ -88,11 +93,6 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    * needed.
    */
   public function registerEvent($level, string $message, array $context = []) {
-    if (!$this->isEnabled()) {
-      // Service is disabled.
-      return [];
-    }
-
     // Populate the message placeholders and then replace them in the message.
     $message_placeholders = $this->logMessageParser->parseMessagePlaceholders($message, $context);
     $message = empty($message_placeholders) ? $message : strtr($message, $message_placeholders);

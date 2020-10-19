@@ -23,10 +23,6 @@ interface LogsHttpLoggerInterface extends LoggerInterface {
    * @code
    * public function registerEvent($level, string $message, array $context = []) {
    *   $event = parent::registerEvent($level, $message, $context);
-   *   if (empty($event)) {
-   *     // Service is disabled.
-   *     return [];
-   *   }
    *
    *   // Update our custom value(s).
    *   $event['foo'] = 'bar';
