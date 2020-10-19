@@ -15,12 +15,12 @@ use Drupal\Core\Utility\Error;
  * always fatal: the execution of the script will stop as soon as the exception
  * handler exits.
  *
- * @param $exception
+ * @param \Throwable $exception
  *   The exception object that was thrown.
  *
  * @see _drupal_exception_handler()
  */
-function _logs_http_exception_handler($exception) {
+function _logs_http_exception_handler(\Throwable $exception) {
   require_once DRUPAL_ROOT . '/core/includes/errors.inc';
 
   try {

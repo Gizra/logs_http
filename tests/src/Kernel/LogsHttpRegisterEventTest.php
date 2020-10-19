@@ -12,7 +12,18 @@ use Drupal\KernelTests\KernelTestBase;
  */
 class LogsHttpRegisterEventTest extends KernelTestBase {
 
+  /**
+   * The config for Logs http.
+   *
+   * @var \Drupal\Core\Config\Config
+   */
   private $logsHttpConfig;
+
+  /**
+   * The Logs http service.
+   *
+   * @var \Drupal\logs_http\Logger\LogsHttpLoggerInterface
+   */
   private $logsHttpLogger;
 
   /**

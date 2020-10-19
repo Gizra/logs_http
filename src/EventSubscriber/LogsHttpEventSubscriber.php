@@ -7,7 +7,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 /**
- *
+ * Event subscribed for Logs http.
  */
 class LogsHttpEventSubscriber implements EventSubscriberInterface {
 

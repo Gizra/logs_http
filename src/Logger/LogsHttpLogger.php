@@ -8,7 +8,7 @@ use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Logger\RfcLoggerTrait;
 
 /**
- *
+ * Implements a Logs Http Logger instance.
  */
 class LogsHttpLogger implements LogsHttpLoggerInterface {
   use RfcLoggerTrait;
@@ -78,7 +78,8 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    * {@inheritdoc}
    *
    * To prevent multiple registration of the same error, we check that identical
-   * events are not captured twice, thus reducing the final HTTP requests needed.
+   * events are not captured twice, thus reducing the final HTTP requests
+   * needed.
    */
   public function registerEvent($level, string $message, array $context = []) {
     if (!$this->isEnabled()) {
@@ -122,12 +123,13 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
   /**
    * Deep array filter; Remove empty values.
    *
-   * @param $haystack
+   * @param array $haystack
    *   The variable to filter.
    *
-   * @return mixed
+   * @return array
+   *   The filtered array.
    */
-  protected function arrayRemoveEmpty($haystack) {
+  protected function arrayRemoveEmpty(array $haystack) {
     foreach ($haystack as $key => $value) {
       if (is_array($value)) {
         $haystack[$key] = $this->arrayRemoveEmpty($haystack[$key]);
@@ -158,7 +160,8 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    * be empty.
    *
    * @return bool
-   *   Returns TRUE if currently we should POST the data, otherwise returns FALSE.
+   *   Returns TRUE if currently we should POST the data, otherwise returns
+   *   FALSE.
    */
   public function isEnabled() {
     return $this->config->get('enabled') && !empty($this->getUrl());
