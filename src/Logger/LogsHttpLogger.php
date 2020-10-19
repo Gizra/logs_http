@@ -140,9 +140,13 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
     $event_clone = $event;
     unset($event_clone['timestamp']);
     $key = md5(serialize($event_clone));
-    $this->cache[$key] = $event;
-  }
 
+    $is_unique = !empty($this->cache[$key]);
+
+    $this->cache[$key] = $event;
+
+    return $is_unique;
+  }
 
   /**
    * Deep array filter; Remove empty values.
