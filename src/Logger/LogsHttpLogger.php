@@ -71,7 +71,13 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       return;
     }
 
-    $this->registerEvent($level, $message, $context);
+    $event = $this->registerEvent($level, $message, $context);
+    if (!$event) {
+      // No event created.
+      return;
+    }
+
+    $this->addEventToCache($event);
   }
 
   /**
@@ -83,7 +89,8 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
    */
   public function registerEvent($level, string $message, array $context = []) {
     if (!$this->isEnabled()) {
-      return;
+      // Service is disabled.
+      return [];
     }
 
     // Populate the message placeholders and then replace them in the message.
@@ -110,6 +117,22 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       $event['uuid'] = $environment_uuid;
     }
 
+    return $event;
+  }
+
+  /**
+   * Add an event to static cache.
+   *
+   * Prevent adding the same event, occurred in the same request, twice.
+   *
+   * @param array $event
+   *   The event to register in the static cache.
+   *
+   * @return bool
+   *   TRUE if added to cache, otherwise FALSE, indicating is was already added
+   *   previously.
+   */
+  protected function addEventToCache(array $event) {
     // Remove empty values, to prevent errors in the indexing of the JSON.
     $event = $this->arrayRemoveEmpty($event);
 
@@ -119,6 +142,7 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
     $key = md5(serialize($event_clone));
     $this->cache[$key] = $event;
   }
+
 
   /**
    * Deep array filter; Remove empty values.
