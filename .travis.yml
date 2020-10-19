@@ -1,5 +1,4 @@
 language: php
-sudo: false
 
 services:
   - mysql
@@ -7,6 +6,7 @@ services:
 php:
   - 7.2
   - 7.3
+  - 7.4
 
 env:
   global:
@@ -23,11 +23,6 @@ jobs:
   allow_failures:
     php: 7.2
     env: DRUPAL_CORE=9.0.x
-
-mysql:
-  database: logs_http
-  username: root
-  encoding: utf8
 
 before_script:
   # Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
