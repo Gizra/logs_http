@@ -5,8 +5,8 @@
  * Logs HTTP module.
  */
 
+use GuzzleHttp\Exception\RequestException;
 use Drupal\Core\Utility\Error;
-use Drupal\logs_http\Logger\LogsHttpLogger;
 
 /**
  * Provides custom PHP exception handling.
@@ -27,8 +27,8 @@ function _logs_http_exception_handler($exception) {
     // Log the message to the watchdog and return an error page to the user.
     _drupal_log_error(Error::decodeException($exception), TRUE);
   }
-    // PHP 7 introduces Throwable, which covers both Error and
-    // Exception throwables.
+  // PHP 7 introduces Throwable, which covers both Error and
+  // Exception throwables.
   catch (\Throwable $error) {
     _drupal_exception_handler_additional($exception, $error);
   }
@@ -40,7 +40,7 @@ function _logs_http_exception_handler($exception) {
  * LogsHttpEventSubscriber registers this function as a shutdown function.
  */
 function logs_http_shutdown() {
-  /** @var LogsHttpLogger $logs_http_logger */
+  /** @var \Drupal\logs_http\Logger\LogsHttpLogger $logs_http_logger */
   $logs_http_logger = \Drupal::service('logs_http.logs_http_logger');
   if (!$logs_http_logger->isEnabled()) {
     return;
@@ -60,6 +60,8 @@ function logs_http_shutdown() {
       // Send data to Logs.
       $client->post($url, ['json' => $event]);
     }
-    catch (\GuzzleHttp\Exception\RequestException $e) {}
+    catch (RequestException $e) {
+
+    }
   }
 }

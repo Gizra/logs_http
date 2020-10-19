@@ -1,14 +1,9 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\Tests\logs_http\Kernel;
 
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\KernelTests\KernelTestBase;
-use Drupal\logs_http\Logger\LogsHttpLogger;
 
 /**
  * Test registration of an event.
@@ -45,7 +40,7 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
   /**
    * Test registration of an event.
    */
-  function testRegisterEvent() {
+  public function testRegisterEvent() {
     // Test severity.
     \Drupal::logger('logs_http')->notice('Notice 1');
     $events = $this->logsHttpLogger->getEvents();
@@ -79,4 +74,5 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
     $this->assertEquals('Notice 1', $event1['message'], 'Correct first event registered.');
     $this->assertEquals('Notice 2', $event2['message'], 'Correct second event registered.');
   }
+
 }

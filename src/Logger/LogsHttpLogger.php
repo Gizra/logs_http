@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\logs_http\Logger;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -11,6 +7,9 @@ use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\Core\Logger\RfcLoggerTrait;
 
+/**
+ *
+ */
 class LogsHttpLogger implements LogsHttpLoggerInterface {
   use RfcLoggerTrait;
 
@@ -66,7 +65,7 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
   /**
    * {@inheritdoc}
    */
-  public function log($level, $message, array $context = array()) {
+  public function log($level, $message, array $context = []) {
     if ($level > $this->config->get('severity_level')) {
       // Severity level is above the ones we want to log.
       return;
@@ -181,4 +180,5 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
   public function getUrl() {
     return $this->config->get('url');
   }
+
 }

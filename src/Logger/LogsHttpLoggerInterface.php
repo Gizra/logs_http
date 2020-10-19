@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Describes a Logs Http Logger instance.
  */
-Interface LogsHttpLoggerInterface extends LoggerInterface {
+interface LogsHttpLoggerInterface extends LoggerInterface {
 
   /**
    * Clear the events.
@@ -43,4 +43,5 @@ Interface LogsHttpLoggerInterface extends LoggerInterface {
    * @return array|mixed|null
    */
   public function getUrl();
+
 }
