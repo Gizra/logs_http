@@ -7,7 +7,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
+/*
  * Defines a form that configures Logs http settings.
  */
 class SettingsForm extends ConfigFormBase {
