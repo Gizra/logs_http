@@ -19,7 +19,6 @@ class LogsHttpEventSubscriber implements EventSubscriberInterface {
    */
   public function onRequest(GetResponseEvent $event) {
     drupal_register_shutdown_function('logs_http_shutdown');
-    set_exception_handler('_logs_http_exception_handler');
   }
 
   /**
