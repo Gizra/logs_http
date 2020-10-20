@@ -39,10 +39,11 @@ before_script:
   # We also don't care if that file exists or not on PHP 7.
   - phpenv config-rm xdebug.ini || true
 
+# The default stage is "test", so we specify the "test" stage below.
+script:
   # Remember the current directory for later use in the Drupal installation.
   - TESTDIR=$(pwd)
 
-script:
   # Navigate out of module directory to prevent blown stack by recursive module
   # lookup.
   - cd ..
