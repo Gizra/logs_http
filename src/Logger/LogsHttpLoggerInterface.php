@@ -39,14 +39,7 @@ interface LogsHttpLoggerInterface extends LoggerInterface {
    *   The context as passed from the main Logger.
    *
    * @return array
-   *   If no event was created, since the service is disabled, then an empty
-   *   array. Otherwise an array with the following values:
-   *   - hash: The hash of the event. This is a result of md5, and it's just a
-   *   quick way for us to make sure we don't send over duplicate events
-   *   occurred in a single request.
-   *   - event: The array of the event.
-   *   - is_unique: TRUE indicating if this is the first time we encounter
-   *   this event in this specific request. Otherwise, if duplicate, FALSE.
+   *   The event that was created.
    */
   public function registerEvent($level, string $message, array $context = []);
 
