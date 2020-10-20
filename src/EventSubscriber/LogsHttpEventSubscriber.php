@@ -1,15 +1,14 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\logs_http\EventSubscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
+/**
+ * Event subscribed for Logs http.
+ */
 class LogsHttpEventSubscriber implements EventSubscriberInterface {
 
   /**
@@ -28,10 +27,10 @@ class LogsHttpEventSubscriber implements EventSubscriberInterface {
    * @return array
    *   An array of event listener definitions.
    */
-  static function getSubscribedEvents() {
+  public static function getSubscribedEvents() {
     // Setting high priority for this subscription in order to execute it soon
     // enough.
-    $events[KernelEvents::REQUEST][] = array('onRequest', 1000);
+    $events[KernelEvents::REQUEST][] = ['onRequest', 1000];
 
     return $events;
   }

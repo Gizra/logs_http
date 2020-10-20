@@ -20,9 +20,18 @@ env:
     - DRUPAL_CORE=9.0.x
 
 jobs:
+  include:
+    - stage: lint
+      script: composer global require drupal/coder:^8.3.10 && ~/.config/composer/vendor/bin/phpcs --config-set installed_paths ~/.config/composer/vendor/drupal/coder/coder_sniffer && ~/.config/composer/vendor/bin/phpcs --standard="Drupal,DrupalPractice" -p --colors --extensions=php,module,inc,install,test,profile,theme,css .
+      php: 7.4
+      ENV: DRUPAL_CORE=9.0.x
   allow_failures:
     php: 7.2
     env: DRUPAL_CORE=9.0.x
+
+stages:
+  - lint
+  - test
 
 before_script:
   # Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
@@ -30,6 +39,8 @@ before_script:
   # We also don't care if that file exists or not on PHP 7.
   - phpenv config-rm xdebug.ini || true
 
+# The default stage is "test", so we specify the "test" stage below.
+script:
   # Remember the current directory for later use in the Drupal installation.
   - TESTDIR=$(pwd)
 
@@ -56,6 +67,6 @@ before_script:
   # Wait until the web server is responding.
   - until curl -s localhost:8888; do true; done > /dev/null
 
-script:
+
   # Run the PHPUnit tests which also include the kernel tests.
   - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist ./modules/logs_http

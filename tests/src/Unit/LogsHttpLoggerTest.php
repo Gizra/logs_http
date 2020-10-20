@@ -1,12 +1,12 @@
 <?php
 
 namespace Drupal\Tests\logs_http\Unit;
+
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Logger\LogMessageParserInterface;
 use Drupal\Core\Logger\RfcLogLevel;
 use Drupal\logs_http\Logger\LogsHttpLogger;
 use Drupal\Tests\UnitTestCase;
-
 
 /**
  * Tests the Logs Http logger service.
@@ -36,7 +36,6 @@ class LogsHttpLoggerTest extends UnitTestCase {
    * @var array
    */
   protected $severityLevels;
-
 
   /**
    * {@inheritdoc}
@@ -69,13 +68,11 @@ class LogsHttpLoggerTest extends UnitTestCase {
       ->get('url')
       ->willReturn($url);
 
-
     $logger = new LogsHttpLogger($this->config->reveal(), $this->logMessageParser->reveal());
     $result = $logger->isEnabled();
 
     $this->assertEquals($expected, $result);
   }
-
 
   /**
    * Provides test data to test isEnabled.
@@ -88,7 +85,6 @@ class LogsHttpLoggerTest extends UnitTestCase {
    *   - "enabled" boolean value.
    *   - "url" string value.
    *   - The expected result.
-   *
    */
   public function isEnabledProvider() {
     return [

@@ -5,15 +5,15 @@
  * Logs HTTP module.
  */
 
-use Drupal\logs_http\Logger\LogsHttpLogger;
+use GuzzleHttp\Exception\RequestException;
 
 /**
  * Runs on shutdown to clean up and display developer information.
  *
- * LogsHttpEventSubscriber registers this function as a shutdown function.
+ * @see \Drupal\logs_http\EventSubscriber\LogsHttpEventSubscriber
  */
 function logs_http_shutdown() {
-  /** @var LogsHttpLogger $logs_http_logger */
+  /** @var \Drupal\logs_http\Logger\LogsHttpLogger $logs_http_logger */
   $logs_http_logger = \Drupal::service('logs_http.logs_http_logger');
   if (!$logs_http_logger->isEnabled()) {
     return;
@@ -33,6 +33,8 @@ function logs_http_shutdown() {
       // Send data to Logs.
       $client->post($url, ['json' => $event]);
     }
-    catch (\GuzzleHttp\Exception\RequestException $e) {}
+    catch (RequestException $e) {
+
+    }
   }
 }
