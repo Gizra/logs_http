@@ -1,9 +1,5 @@
 <?php
 
-/**
- * @file
- */
-
 namespace Drupal\logs_http\Form;
 
 use Drupal\Core\Form\ConfigFormBase;
@@ -48,34 +44,34 @@ class SettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state, Request $request = NULL) {
     $config = $this->config('logs_http.settings');
 
-    $form['enabled'] = array(
+    $form['enabled'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Enable'),
       '#description' => $this->t('Enable Logs HTTP'),
       '#default_value' => $config->get('enabled'),
-    );
+    ];
 
-    $form['url'] = array(
+    $form['url'] = [
       '#type' => 'url',
       '#title' => $this->t('Endpoint'),
       '#description' => $this->t('The URL to POST the data to.'),
       '#default_value' => $config->get('url'),
-    );
+    ];
 
-    $form['severity_level'] = array(
+    $form['severity_level'] = [
       '#type' => 'select',
       '#title' => $this->t('Watchdog Severity'),
       '#options' => RfcLogLevel::getLevels(),
       '#default_value' => $config->get('severity_level'),
       '#description' => $this->t('The minimum severity level to be reached before an event is sent to Logs.'),
-    );
+    ];
 
-    $form['environment_uuid'] = array(
+    $form['environment_uuid'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Unique ID'),
       '#description' => $this->t('An arbitrary ID that will identify the environment.'),
       '#default_value' => $config->get('environment_uuid'),
-    );
+    ];
 
     return parent::buildForm($form, $form_state);
   }
@@ -94,4 +90,5 @@ class SettingsForm extends ConfigFormBase {
 
     parent::submitForm($form, $form_state);
   }
+
 }
