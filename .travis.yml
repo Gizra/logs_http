@@ -29,6 +29,10 @@ jobs:
     php: 7.2
     env: DRUPAL_CORE=9.0.x
 
+stages:
+  - lint
+  - test
+
 before_script:
   # Remove Xdebug as we don't need it and it causes "PHP Fatal error: Maximum
   # function nesting level of '256' reached."
