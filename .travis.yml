@@ -22,7 +22,7 @@ env:
 jobs:
   include:
     - stage: lint
-      script: composer global require drupal/coder:^8.3.10 && phpcs --config-set installed_paths ~/.config/composer/vendor/drupal/coder/coder_sniffer && phpcs --standard="Drupal,DrupalPractice" -p --colors --extensions=php,module,inc,install,test,profile,theme,css .
+      script: composer global require drupal/coder:^8.3.10 && ~/.config/composer/vendor/bin/phpcs --config-set installed_paths ~/.config/composer/vendor/drupal/coder/coder_sniffer && ~/.config/composer/vendor/bin/phpcs --standard="Drupal,DrupalPractice" -p --colors --extensions=php,module,inc,install,test,profile,theme,css .
       php: 7.4
       ENV: DRUPAL_CORE=9.0.x
   allow_failures:
@@ -42,6 +42,7 @@ before_script:
   # Remember the current directory for later use in the Drupal installation.
   - TESTDIR=$(pwd)
 
+script:
   # Navigate out of module directory to prevent blown stack by recursive module
   # lookup.
   - cd ..
@@ -65,6 +66,6 @@ before_script:
   # Wait until the web server is responding.
   - until curl -s localhost:8888; do true; done > /dev/null
 
-script:
+
   # Run the PHPUnit tests which also include the kernel tests.
   - ./vendor/phpunit/phpunit/phpunit -c ./core/phpunit.xml.dist ./modules/logs_http
