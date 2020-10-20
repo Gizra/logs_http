@@ -39,7 +39,7 @@ interface LogsHttpLoggerInterface extends LoggerInterface {
    *   The context as passed from the main Logger.
    *
    * @return array
-   *   The event that was created.
+   *   The event that was created, before it's added to the static cache.
    */
   public function registerEvent($level, string $message, array $context = []);
 
