@@ -9,7 +9,11 @@ Logs syslog agent is not an option such as when a web hosting limitation
 restricts installing custom web server software. This module provides a
 decoupled push via watchdog depending on severity levels.
 
-The module can be used with any service that accepts HTTP such as [Logstash](http://logstash.net/), or paid services such as [Loggly](loggly.com)
+The module can be used with any service that accepts HTTP such as [Logstash](http://logstash.net/), or paid services such as [Rollbar](https://rollbar.com)
+
+## Implementing Modules
+
+* [Drupal DataDog](https://github.com/justafish/drupal_datadog)
 
 ## Credits
 
