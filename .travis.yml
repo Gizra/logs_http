@@ -4,7 +4,6 @@ services:
   - mysql
 
 php:
-  - 7.2
   - 7.3
   - 7.4
 
@@ -25,9 +24,6 @@ jobs:
       script: composer global require drupal/coder:^8.3.10 && ~/.config/composer/vendor/bin/phpcs --config-set installed_paths ~/.config/composer/vendor/drupal/coder/coder_sniffer && ~/.config/composer/vendor/bin/phpcs --standard="Drupal,DrupalPractice" -p --colors --extensions=php,module,inc,install,test,profile,theme,css .
       php: 7.4
       ENV: DRUPAL_CORE=9.0.x
-  allow_failures:
-    php: 7.2
-    env: DRUPAL_CORE=9.0.x
 
 stages:
   - lint
