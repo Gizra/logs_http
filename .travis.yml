@@ -56,7 +56,7 @@ script:
   - cd drupal
 
   # Install Composer dependencies.
-  -  composer self-update --rollback && composer install
+  - composer self-update && composer install
 
   # Reference OG in the Drupal site.
   - ln -s $TESTDIR modules/logs_http
