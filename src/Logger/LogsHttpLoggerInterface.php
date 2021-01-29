@@ -67,4 +67,14 @@ interface LogsHttpLoggerInterface extends LoggerInterface {
    */
   public function getUrl();
 
+  /**
+   * A getter for the HTTP headers for the logging request.
+   *
+   * It could be used typically for authentication.
+   *
+   * @return array
+   *   HTTP headers for the logging requests.
+   */
+  public function getHttpHeaders();
+
 }
