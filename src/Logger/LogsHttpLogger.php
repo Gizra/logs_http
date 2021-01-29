@@ -205,4 +205,13 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
     return $this->config->get('url');
   }
 
+  /**
+   * A getter for the HTTP headers for the logging request.
+   */
+  public function getHttpHeaders() {
+    return [
+      'Content-Type' => 'application/json',
+    ];
+  }
+
 }

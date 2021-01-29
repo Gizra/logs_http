@@ -14,9 +14,9 @@ env:
     # Export web server URL for browser tests.
     - SIMPLETEST_BASE_URL=http://localhost:8888
   matrix:
-    - DRUPAL_CORE=8.8.x
     - DRUPAL_CORE=8.9.x
     - DRUPAL_CORE=9.0.x
+    - DRUPAL_CORE=9.1.x
 
 jobs:
   include:

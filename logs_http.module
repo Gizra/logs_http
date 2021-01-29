@@ -31,7 +31,10 @@ function logs_http_shutdown() {
 
     try {
       // Send data to Logs.
-      $client->post($url, ['json' => $event]);
+      $client->post($url, [
+        'json' => $event,
+        'headers' => $logs_http_logger->getHttpHeaders(),
+      ]);
     }
     catch (RequestException $e) {
 
