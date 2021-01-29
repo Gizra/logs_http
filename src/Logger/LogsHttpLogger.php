@@ -213,4 +213,5 @@ class LogsHttpLogger implements LogsHttpLoggerInterface {
       'Content-Type' => 'application/json',
     ];
   }
+
 }
