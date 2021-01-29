@@ -40,7 +40,7 @@ class LogsHttpLoggerTest extends UnitTestCase {
   /**
    * {@inheritdoc}
    */
-  public function setUp() {
+  public function setUp(): void {
     $this->config = $this->prophesize(ConfigFactoryInterface::class);
     $this->logMessageParser = $this->prophesize(LogMessageParserInterface::class);
     $this->severityLevels = RfcLogLevel::getLevels();

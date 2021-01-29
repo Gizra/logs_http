@@ -29,16 +29,16 @@ class LogsHttpRegisterEventTest extends KernelTestBase {
   /**
    * {@inheritdoc}
    */
-  public static $modules = ['logs_http'];
+  protected static $modules = ['logs_http'];
 
   /**
    * {@inheritdoc}
    */
-  protected function setUp() {
+  protected function setUp(): void {
     parent::setUp();
 
     // Installing needed schema.
-    $this->installConfig(['logs_http']);
+    $this->installConfig(static::$modules);
 
     // Setup the configuration.
     $this->logsHttpConfig = \Drupal::configFactory()->getEditable('logs_http.settings');
