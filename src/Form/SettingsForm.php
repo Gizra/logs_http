@@ -34,7 +34,7 @@ class SettingsForm extends ConfigFormBase {
       'enabled',
       'url',
       'severity_level',
-      'uuid',
+      'environment_uuid',
     ];
   }
 
