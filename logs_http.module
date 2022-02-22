@@ -27,6 +27,18 @@ function logs_http_shutdown() {
 
   // Send events to logs.
   foreach ($events as $event) {
+    // Allows to alter an event by adding new properties, or completely disable
+    // sending an event to the log service by setting $event['send'] = FALSE;
+    $event['send'] = TRUE;
+    $module_handler = \Drupal::moduleHandler();
+    $module_handler->alter('logs_http_event', $event);
+
+    // If event does not want be sent, continue with the next one.
+    if (empty($event['send'])) {
+      continue;
+    }
+
+    unset($event['send']);
     $client = \Drupal::httpClient();
 
     try {
